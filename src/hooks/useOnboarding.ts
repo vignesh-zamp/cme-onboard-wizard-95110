@@ -251,6 +251,59 @@ export const useOnboarding = () => {
           setTimeout(() => {
             const nextStepData = onboardingSteps[targetStep - 1];
             
+            // Determine input type based on step
+            let inputType: "text" | "address" | "multifield" | "none" = "none";
+            let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
+
+            // Steps that need text input
+            if ([2, 6, 9, 13, 16, 18].includes(targetStep)) {
+              inputType = "text";
+              
+              // Special handling for specific steps
+              if (targetStep === 2) {
+                inputFields = [{ name: "jurisdiction", placeholder: "e.g., United States of America", type: "text" }];
+              } else if (targetStep === 6) {
+                inputFields = [{ name: "legalName", placeholder: "Legal Name, Country", type: "text" }];
+              } else if (targetStep === 9) {
+                inputFields = [{ name: "entityDetails", placeholder: "Legal Name | DBA | Direct Parent | Ultimate Parent", type: "text" }];
+              } else if (targetStep === 13) {
+                inputFields = [{ name: "lei", placeholder: "20-character LEI", type: "text" }];
+              } else if (targetStep === 16) {
+                inputFields = [{ name: "email", placeholder: "your.email@company.com", type: "email" }];
+              } else if (targetStep === 18) {
+                inputFields = [{ name: "users", placeholder: "Active: 3, Passive: 2", type: "text" }];
+              }
+            }
+            
+            // Address validation step
+            if (targetStep === 10) {
+              inputType = "address";
+            }
+            
+            // Multi-field steps
+            if (targetStep === 11 || targetStep === 17) {
+              inputType = "multifield";
+              if (targetStep === 11) {
+                inputFields = [
+                  { name: "contact1Name", placeholder: "Contact 1 Name", type: "text" },
+                  { name: "contact1Email", placeholder: "Contact 1 Email", type: "email" },
+                  { name: "contact1Phone", placeholder: "Contact 1 Phone", type: "tel" },
+                  { name: "contact2Name", placeholder: "Contact 2 Name", type: "text" },
+                  { name: "contact2Email", placeholder: "Contact 2 Email", type: "email" },
+                  { name: "contact2Phone", placeholder: "Contact 2 Phone", type: "tel" },
+                ];
+              } else if (targetStep === 17) {
+                inputFields = [
+                  { name: "vo1Name", placeholder: "VO 1 Name", type: "text" },
+                  { name: "vo1Email", placeholder: "VO 1 Email", type: "email" },
+                  { name: "vo1Phone", placeholder: "VO 1 Phone", type: "tel" },
+                  { name: "vo2Name", placeholder: "VO 2 Name", type: "text" },
+                  { name: "vo2Email", placeholder: "VO 2 Email", type: "email" },
+                  { name: "vo2Phone", placeholder: "VO 2 Phone", type: "tel" },
+                ];
+              }
+            }
+
             // Special message for platform recommendation step (step 5)
             if (targetStep === 5 && currentRecommendation) {
               const recommendationMessage: ChatMessage = {
@@ -260,6 +313,7 @@ export const useOnboarding = () => {
                 timestamp: new Date(),
                 options: nextStepData.options,
                 recommendation: currentRecommendation,
+                inputType: "none",
               };
               setMessages((prev) => [...prev, recommendationMessage]);
             } else {
@@ -269,6 +323,8 @@ export const useOnboarding = () => {
                 content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
                 timestamp: new Date(),
                 options: nextStepData.options,
+                inputType,
+                inputFields,
               };
               setMessages((prev) => [...prev, agentMessage]);
             }

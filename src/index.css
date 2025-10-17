@@ -113,3 +113,47 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Mapbox Geocoder Customization */
+.geocoder-container .mapboxgl-ctrl-geocoder {
+  width: 100%;
+  max-width: none;
+  box-shadow: none;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.375rem;
+  height: 3rem;
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--input {
+  height: 3rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--icon-search {
+  fill: hsl(var(--muted-foreground));
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--button {
+  background-color: transparent;
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--icon-close {
+  margin-top: 0;
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--suggestion {
+  padding: 0.5rem 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+.geocoder-container .mapboxgl-ctrl-geocoder--suggestion:hover,
+.geocoder-container .mapboxgl-ctrl-geocoder--suggestion.active {
+  background-color: hsl(var(--accent));
+}

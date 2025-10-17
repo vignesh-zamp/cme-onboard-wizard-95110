@@ -45,15 +45,21 @@ const Index = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-6 py-8">
           <div className="space-y-4">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+            {messages.map((message, index) => (
+              <ChatMessage 
+                key={message.id} 
+                message={message} 
+                onFormSubmit={processUserMessage}
+                isLatestMessage={index === messages.length - 1}
+                disabled={isProcessing}
+              />
             ))}
             <div ref={messagesEndRef} />
           </div>
         </div>
       </main>
 
-      {/* Input Area */}
+      {/* Input Area - Only show quick options and fallback input */}
       <footer className="bg-card border-t border-border shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-4">
           {showQuickOptions && currentMessage.options && (
@@ -64,15 +70,18 @@ const Index = () => {
             />
           )}
           
-          <ChatInput
-            onSend={processUserMessage}
-            disabled={isProcessing}
-            placeholder={
-              isProcessing 
-                ? "Processing your response..." 
-                : "Type your response or select an option above..."
-            }
-          />
+          {/* Only show ChatInput when there's no inline form input */}
+          {(!currentMessage?.inputType || currentMessage.inputType === "none") && (
+            <ChatInput
+              onSend={processUserMessage}
+              disabled={isProcessing}
+              placeholder={
+                isProcessing 
+                  ? "Processing your response..." 
+                  : "Type your response or select an option above..."
+              }
+            />
+          )}
           
           <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <p>

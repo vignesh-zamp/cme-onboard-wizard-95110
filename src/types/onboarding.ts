@@ -24,6 +24,8 @@ export interface ChatMessage {
     message?: string;
   };
   recommendation?: PlatformRecommendation;
+  inputType?: "text" | "address" | "multifield" | "none";
+  inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
 }
 
 export interface Step {

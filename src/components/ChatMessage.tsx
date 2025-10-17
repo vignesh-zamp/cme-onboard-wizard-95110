@@ -3,12 +3,23 @@ import { ChatMessage as ChatMessageType } from "@/types/onboarding";
 import { CheckCircle2, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlatformRecommendation } from "@/components/PlatformRecommendation";
+import { FormInput } from "./FormInput";
+import { AddressInput } from "./AddressInput";
+import { MultiFieldInput } from "./MultiFieldInput";
 
 interface ChatMessageProps {
   message: ChatMessageType;
+  onFormSubmit?: (value: string | Record<string, string>) => void;
+  isLatestMessage?: boolean;
+  disabled?: boolean;
 }
 
-export const ChatMessage = ({ message }: ChatMessageProps) => {
+export const ChatMessage = ({ 
+  message, 
+  onFormSubmit, 
+  isLatestMessage = false,
+  disabled = false 
+}: ChatMessageProps) => {
   const isAgent = message.type === 'agent';
   const isSystem = message.type === 'system';
 
@@ -17,6 +28,20 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     error: AlertCircle,
     pending: Clock,
     warning: AlertTriangle,
+  };
+
+  const handleFormSubmit = (value: string | Record<string, string>) => {
+    if (onFormSubmit) {
+      // Convert object values to string format
+      if (typeof value === 'object') {
+        const formatted = Object.entries(value)
+          .map(([key, val]) => `${key}: ${val}`)
+          .join(', ');
+        onFormSubmit(formatted);
+      } else {
+        onFormSubmit(value);
+      }
+    }
   };
 
   return (
@@ -53,6 +78,32 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
           <div className="mt-4">
             <PlatformRecommendation recommendation={message.recommendation} />
           </div>
+        )}
+
+        {/* Inline form inputs for latest agent message */}
+        {message.type === "agent" && isLatestMessage && onFormSubmit && (
+          <>
+            {message.inputType === "text" && (
+              <FormInput 
+                onSubmit={handleFormSubmit} 
+                disabled={disabled}
+                placeholder={message.inputFields?.[0]?.placeholder || "Type your answer..."}
+              />
+            )}
+            {message.inputType === "address" && (
+              <AddressInput 
+                onSubmit={handleFormSubmit} 
+                disabled={disabled}
+              />
+            )}
+            {message.inputType === "multifield" && message.inputFields && (
+              <MultiFieldInput 
+                fields={message.inputFields as { name: string; placeholder: string; type?: "text" | "email" | "tel" }[]} 
+                onSubmit={handleFormSubmit} 
+                disabled={disabled}
+              />
+            )}
+          </>
         )}
 
         {message.validation && (
