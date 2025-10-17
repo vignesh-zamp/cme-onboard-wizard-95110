@@ -255,9 +255,10 @@ export const useOnboarding = () => {
               const recommendationMessage: ChatMessage = {
                 id: `recommendation-${Date.now()}`,
                 type: "agent",
-                content: `${nextStepData.question}\n\n**${platformRecommendation.platform}**\n\n${platformRecommendation.reasoning.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n\n💡 ${nextStepData.helpText}`,
+                content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
                 timestamp: new Date(),
                 options: nextStepData.options,
+                recommendation: platformRecommendation,
               };
               setMessages((prev) => [...prev, recommendationMessage]);
             } else {

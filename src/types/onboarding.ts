@@ -7,6 +7,12 @@ export interface OnboardingState {
   isCanadaEligible: boolean;
 }
 
+export interface PlatformRecommendation {
+  platform: string;
+  reasoning: string[];
+  confidence: 'high' | 'medium';
+}
+
 export interface ChatMessage {
   id: string;
   type: 'agent' | 'user' | 'system';
@@ -17,6 +23,7 @@ export interface ChatMessage {
     status: 'pending' | 'success' | 'error' | 'warning';
     message?: string;
   };
+  recommendation?: PlatformRecommendation;
 }
 
 export interface Step {

@@ -1,6 +1,8 @@
+import React from "react";
 import { ChatMessage as ChatMessageType } from "@/types/onboarding";
 import { CheckCircle2, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PlatformRecommendation } from "@/components/PlatformRecommendation";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -47,6 +49,12 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
           {message.content}
         </div>
 
+        {message.recommendation && (
+          <div className="mt-4">
+            <PlatformRecommendation recommendation={message.recommendation} />
+          </div>
+        )}
+
         {message.validation && (
           <div
             className={cn(
@@ -78,6 +86,3 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     </div>
   );
 };
-
-// Fix React import
-import React from "react";
