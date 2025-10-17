@@ -220,9 +220,10 @@ export const useOnboarding = () => {
       }
 
       // Generate platform recommendation after step 4
+      let currentRecommendation = platformRecommendation;
       if (state.currentStep === 4) {
-        const recommendation = generatePlatformRecommendation(newState.answers);
-        setPlatformRecommendation(recommendation);
+        currentRecommendation = generatePlatformRecommendation(newState.answers);
+        setPlatformRecommendation(currentRecommendation);
       }
 
       // Special handling for entity registration (now step 6)
@@ -251,14 +252,14 @@ export const useOnboarding = () => {
             const nextStepData = onboardingSteps[targetStep - 1];
             
             // Special message for platform recommendation step (step 5)
-            if (targetStep === 5 && platformRecommendation) {
+            if (targetStep === 5 && currentRecommendation) {
               const recommendationMessage: ChatMessage = {
                 id: `recommendation-${Date.now()}`,
                 type: "agent",
                 content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
                 timestamp: new Date(),
                 options: nextStepData.options,
-                recommendation: platformRecommendation,
+                recommendation: currentRecommendation,
               };
               setMessages((prev) => [...prev, recommendationMessage]);
             } else {
