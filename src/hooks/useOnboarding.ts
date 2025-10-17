@@ -255,53 +255,94 @@ export const useOnboarding = () => {
             let inputType: "text" | "address" | "multifield" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
 
-            // Steps that need text input
-            if ([2, 6, 9, 13, 16, 18].includes(targetStep)) {
-              inputType = "text";
-              
-              // Special handling for specific steps
-              if (targetStep === 2) {
-                inputFields = [{ name: "jurisdiction", placeholder: "e.g., United States of America", type: "text" }];
-              } else if (targetStep === 6) {
-                inputFields = [{ name: "legalName", placeholder: "Legal Name, Country", type: "text" }];
-              } else if (targetStep === 9) {
-                inputFields = [{ name: "entityDetails", placeholder: "Legal Name | DBA | Direct Parent | Ultimate Parent", type: "text" }];
-              } else if (targetStep === 13) {
-                inputFields = [{ name: "lei", placeholder: "20-character LEI", type: "text" }];
-              } else if (targetStep === 16) {
-                inputFields = [{ name: "email", placeholder: "your.email@company.com", type: "email" }];
-              } else if (targetStep === 18) {
-                inputFields = [{ name: "users", placeholder: "Active: 3, Passive: 2", type: "text" }];
-              }
+            // Step 2: Geographic Scope - separate fields
+            if (targetStep === 2) {
+              inputType = "multifield";
+              inputFields = [
+                { name: "countryOfIncorporation", placeholder: "Country of Incorporation", type: "text" },
+                { name: "crossBorderOperations", placeholder: "Cross-border Operations (if any)", type: "text" },
+              ];
             }
             
-            // Address validation step
+            // Step 6: Entity Registration - separate fields
+            if (targetStep === 6) {
+              inputType = "multifield";
+              inputFields = [
+                { name: "legalName", placeholder: "Full Legal Name", type: "text" },
+                { name: "jurisdiction", placeholder: "Jurisdiction of Incorporation", type: "text" },
+              ];
+            }
+            
+            // Step 9: Entity Details - separate fields for each component
+            if (targetStep === 9) {
+              inputType = "multifield";
+              inputFields = [
+                { name: "legalName", placeholder: "Legal Name", type: "text" },
+                { name: "dba", placeholder: "DBA (if applicable)", type: "text" },
+                { name: "directParent", placeholder: "Direct Parent", type: "text" },
+                { name: "ultimateParent", placeholder: "Legal Ultimate Parent", type: "text" },
+              ];
+            }
+            
+            // Step 10: Address validation
             if (targetStep === 10) {
               inputType = "address";
             }
             
-            // Multi-field steps
-            if (targetStep === 11 || targetStep === 17) {
+            // Step 11: Billing Contacts - multi-field
+            if (targetStep === 11) {
               inputType = "multifield";
-              if (targetStep === 11) {
-                inputFields = [
-                  { name: "contact1Name", placeholder: "Contact 1 Name", type: "text" },
-                  { name: "contact1Email", placeholder: "Contact 1 Email", type: "email" },
-                  { name: "contact1Phone", placeholder: "Contact 1 Phone", type: "tel" },
-                  { name: "contact2Name", placeholder: "Contact 2 Name", type: "text" },
-                  { name: "contact2Email", placeholder: "Contact 2 Email", type: "email" },
-                  { name: "contact2Phone", placeholder: "Contact 2 Phone", type: "tel" },
-                ];
-              } else if (targetStep === 17) {
-                inputFields = [
-                  { name: "vo1Name", placeholder: "VO 1 Name", type: "text" },
-                  { name: "vo1Email", placeholder: "VO 1 Email", type: "email" },
-                  { name: "vo1Phone", placeholder: "VO 1 Phone", type: "tel" },
-                  { name: "vo2Name", placeholder: "VO 2 Name", type: "text" },
-                  { name: "vo2Email", placeholder: "VO 2 Email", type: "email" },
-                  { name: "vo2Phone", placeholder: "VO 2 Phone", type: "tel" },
-                ];
-              }
+              inputFields = [
+                { name: "contact1Name", placeholder: "Contact 1 Name", type: "text" },
+                { name: "contact1Email", placeholder: "Contact 1 Email", type: "email" },
+                { name: "contact1Phone", placeholder: "Contact 1 Phone", type: "tel" },
+                { name: "contact2Name", placeholder: "Contact 2 Name", type: "text" },
+                { name: "contact2Email", placeholder: "Contact 2 Email", type: "email" },
+                { name: "contact2Phone", placeholder: "Contact 2 Phone", type: "tel" },
+              ];
+            }
+            
+            // Step 13: LEI - single field
+            if (targetStep === 13) {
+              inputType = "text";
+              inputFields = [{ name: "lei", placeholder: "20-character LEI", type: "text" }];
+            }
+            
+            // Step 15: Canada Details - separate fields
+            if (targetStep === 15) {
+              inputType = "multifield";
+              inputFields = [
+                { name: "provinces", placeholder: "Province(s) (e.g., Ontario, Quebec)", type: "text" },
+                { name: "canadianTaxId", placeholder: "Canadian Tax ID", type: "text" },
+              ];
+            }
+            
+            // Step 16: CME Account - single field
+            if (targetStep === 16) {
+              inputType = "text";
+              inputFields = [{ name: "email", placeholder: "your.email@company.com", type: "email" }];
+            }
+            
+            // Step 17: Verification Officers - multi-field
+            if (targetStep === 17) {
+              inputType = "multifield";
+              inputFields = [
+                { name: "vo1Name", placeholder: "VO 1 Name", type: "text" },
+                { name: "vo1Email", placeholder: "VO 1 Email", type: "email" },
+                { name: "vo1Phone", placeholder: "VO 1 Phone", type: "tel" },
+                { name: "vo2Name", placeholder: "VO 2 Name", type: "text" },
+                { name: "vo2Email", placeholder: "VO 2 Email", type: "email" },
+                { name: "vo2Phone", placeholder: "VO 2 Phone", type: "tel" },
+              ];
+            }
+            
+            // Step 18: User Registration - separate fields
+            if (targetStep === 18) {
+              inputType = "multifield";
+              inputFields = [
+                { name: "activeUsers", placeholder: "Number of Active Users", type: "text" },
+                { name: "passiveUsers", placeholder: "Number of Passive Users", type: "text" },
+              ];
             }
 
             // Special message for platform recommendation step (step 5)

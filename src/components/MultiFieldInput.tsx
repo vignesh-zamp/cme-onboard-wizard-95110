@@ -42,7 +42,7 @@ export const MultiFieldInput = ({
   return (
     <form onSubmit={handleSubmit} className="w-full mt-4">
       <div className="flex gap-3 items-start">
-        <div className="flex-1 grid grid-cols-2 gap-3">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
           {fields.map((field) => (
             <Input
               key={field.name}
@@ -51,7 +51,7 @@ export const MultiFieldInput = ({
               onChange={(e) => handleChange(field.name, e.target.value)}
               placeholder={field.placeholder}
               disabled={disabled}
-              className="h-12 text-base"
+              className="h-12 text-base col-span-1"
             />
           ))}
         </div>

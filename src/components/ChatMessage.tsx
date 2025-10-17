@@ -70,9 +70,15 @@ export const ChatMessage = ({
           </div>
         )}
         
-        <div className="text-sm leading-relaxed whitespace-pre-wrap">
-          {message.content}
-        </div>
+        <div 
+          className="text-sm leading-relaxed whitespace-pre-wrap"
+          dangerouslySetInnerHTML={{ 
+            __html: message.content.replace(
+              /<a\s+href="([^"]+)"([^>]*)>([^<]+)<\/a>/g,
+              '<a href="$1"$2 class="text-primary underline hover:text-primary-light transition-colors">$3</a>'
+            )
+          }}
+        />
 
         {message.recommendation && (
           <div className="mt-4">

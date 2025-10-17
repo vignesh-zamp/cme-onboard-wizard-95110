@@ -20,9 +20,9 @@ export const onboardingSteps: Step[] = [
   {
     id: 2,
     title: "Geographic Scope",
-    question: "What is your firm's primary jurisdiction and do you have any cross-border operations?",
+    question: "What is your firm's primary jurisdiction and cross-border operations?",
     type: "text",
-    helpText: "Please specify your country of incorporation and any regions where you operate."
+    helpText: "This helps determine applicable regulatory requirements and reporting obligations."
   },
   {
     id: 3,
@@ -73,7 +73,7 @@ export const onboardingSteps: Step[] = [
     title: "Entity Registration",
     question: "Excellent! Now let's register your entity. Please provide your firm's full legal name and jurisdiction of incorporation.",
     type: "text",
-    helpText: "Format: Legal Name, Country. This will be validated against existing records in real-time."
+    helpText: "This information will be validated against existing corporate registries in real-time."
   },
   {
     id: 7,
@@ -90,7 +90,7 @@ export const onboardingSteps: Step[] = [
   {
     id: 8,
     title: "ILA Agreement",
-    question: "To proceed, you'll need to review and accept the Information License Agreement (ILA) and Schedule 2b. Have you reviewed these documents and are you ready to proceed?",
+    question: "To proceed, you'll need to review and accept the Information License Agreement (ILA) and Schedule 2b.\n\n📄 Review Documents:\n• <a href=\"https://www.cmegroup.com/market-data/files/information-license-agreement.pdf\" target=\"_blank\" rel=\"noopener noreferrer\">Information License Agreement (ILA)</a>\n• <a href=\"https://www.cmegroup.com/market-data/files/schedule-2b.pdf\" target=\"_blank\" rel=\"noopener noreferrer\">Schedule 2b - Professional Display Device Fees</a>\n\nHave you reviewed these documents and are you ready to proceed?",
     type: "boolean",
     helpText: "Professional Display Device fees are assessed once access to real-time data is enabled. I can explain any complex clauses if needed."
   },
@@ -99,7 +99,7 @@ export const onboardingSteps: Step[] = [
     title: "Entity Details",
     question: "Please provide your complete entity information including legal name, DBA (if applicable), direct parent, and legal ultimate parent.",
     type: "text",
-    helpText: "Format: Legal Name | DBA | Direct Parent | Ultimate Parent. I can validate parent entity data against corporate registries."
+    helpText: "I can validate parent entity data against corporate registries to ensure accuracy."
   },
   {
     id: 10,
@@ -150,7 +150,7 @@ export const onboardingSteps: Step[] = [
     question: "Please specify which Canadian province(s) you have obligations in and provide your Canadian Tax ID.",
     type: "text",
     conditional: (state) => state.isCanadaEligible,
-    helpText: "Format: Province1, Province2 | Tax ID. Select all applicable provinces and territories."
+    helpText: "Select all applicable provinces and territories. You can specify multiple provinces."
   },
   {
     id: 16,
@@ -171,7 +171,7 @@ export const onboardingSteps: Step[] = [
     title: "User Registration",
     question: "How many users would you like to register initially? Please specify the number of Active users (immediate login) and Passive users (notifications only).",
     type: "text",
-    helpText: "Format: Active: X, Passive: Y. Most firms start with 3-5 total users. You can add more later."
+    helpText: "Most firms start with 3-5 total users. You can add more users later at any time."
   },
   {
     id: 19,
