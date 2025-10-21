@@ -22,6 +22,7 @@ export interface ChatMessage {
   validation?: {
     status: 'pending' | 'success' | 'error' | 'warning';
     message?: string;
+    details?: string;
   };
   recommendation?: PlatformRecommendation;
   inputType?: "text" | "address" | "multifield" | "none";

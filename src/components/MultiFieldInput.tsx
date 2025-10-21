@@ -40,30 +40,28 @@ export const MultiFieldInput = ({
   const allFilled = fields.every(field => values[field.name]?.trim());
 
   return (
-    <form onSubmit={handleSubmit} className="w-full mt-4">
-      <div className="flex gap-3 items-start">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-          {fields.map((field) => (
-            <Input
-              key={field.name}
-              type={field.type || "text"}
-              value={values[field.name]}
-              onChange={(e) => handleChange(field.name, e.target.value)}
-              placeholder={field.placeholder}
-              disabled={disabled}
-              className="h-12 text-base col-span-1"
-            />
-          ))}
-        </div>
-        <Button
-          type="submit"
-          disabled={!allFilled || disabled}
-          size="icon"
-          className="h-12 w-12 flex-shrink-0"
-        >
-          <Send className="w-5 h-5" />
-        </Button>
+    <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {fields.map((field) => (
+          <Input
+            key={field.name}
+            type={field.type || "text"}
+            value={values[field.name]}
+            onChange={(e) => handleChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            disabled={disabled}
+            required
+            className="w-full text-base py-6 rounded-xl border-input bg-background"
+          />
+        ))}
       </div>
+      <Button
+        type="submit"
+        disabled={disabled || !allFilled}
+        className="w-full py-6 rounded-xl text-base"
+      >
+        Continue
+      </Button>
     </form>
   );
 };

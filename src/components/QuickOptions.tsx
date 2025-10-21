@@ -8,15 +8,14 @@ interface QuickOptionsProps {
 
 export const QuickOptions = ({ options, onSelect, disabled }: QuickOptionsProps) => {
   return (
-    <div className="flex flex-wrap gap-2 mb-4">
+    <div className="flex flex-wrap gap-3">
       {options.map((option, index) => (
         <Button
           key={index}
           variant="outline"
-          size="sm"
           onClick={() => onSelect(option)}
           disabled={disabled}
-          className="text-sm hover:bg-primary hover:text-primary-foreground transition-all"
+          className="rounded-xl px-6 py-6 text-base hover:bg-accent"
         >
           {option}
         </Button>

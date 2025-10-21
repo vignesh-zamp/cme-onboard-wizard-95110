@@ -27,25 +27,22 @@ export const FormInput = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full mt-4">
-      <div className="flex gap-3 items-center">
-        <Input
-          type={type}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={placeholder}
-          disabled={disabled}
-          className="flex-1 h-12 text-base"
-        />
-        <Button
-          type="submit"
-          disabled={!input.trim() || disabled}
-          size="icon"
-          className="h-12 w-12 flex-shrink-0"
-        >
-          <Send className="w-5 h-5" />
-        </Button>
-      </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-6">
+      <Input
+        type={type}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        className="w-full text-base py-6 rounded-xl border-input bg-background"
+      />
+      <Button 
+        type="submit" 
+        disabled={disabled || !input.trim()} 
+        className="w-full py-6 rounded-xl text-base"
+      >
+        Continue
+      </Button>
     </form>
   );
 };

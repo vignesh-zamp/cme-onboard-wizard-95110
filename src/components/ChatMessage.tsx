@@ -47,98 +47,116 @@ export const ChatMessage = ({
   return (
     <div
       className={cn(
-        "flex w-full mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300",
+        "flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300",
         isAgent || isSystem ? "justify-start" : "justify-end"
       )}
     >
+      {isAgent && (
+        <div className="flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-sm">
+            <span className="text-primary-foreground text-base font-bold">P</span>
+          </div>
+        </div>
+      )}
+
       <div
         className={cn(
-          "max-w-[80%] rounded-lg px-4 py-3 shadow-sm",
-          isAgent && "bg-card border border-border",
-          isSystem && "bg-muted border border-border",
-          !isAgent && !isSystem && "bg-primary text-primary-foreground"
+          "flex flex-col gap-2 max-w-2xl",
+          !isAgent && !isSystem && "items-end"
         )}
       >
         {isAgent && (
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
-              AI
-            </div>
-            <span className="text-xs text-muted-foreground font-medium">
-              CME Onboarding Advisor
+          <div className="flex items-center gap-2 px-1">
+            <span className="text-sm font-medium text-foreground">
+              Pace
             </span>
           </div>
         )}
-        
-        <div 
-          className="text-sm leading-relaxed whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{ 
-            __html: message.content.replace(
-              /<a\s+href="([^"]+)"([^>]*)>([^<]+)<\/a>/g,
-              '<a href="$1"$2 class="text-primary underline hover:text-primary-light transition-colors">$3</a>'
-            )
-          }}
-        />
 
-        {message.recommendation && (
-          <div className="mt-4">
-            <PlatformRecommendation recommendation={message.recommendation} />
-          </div>
-        )}
+        <div
+          className={cn(
+            "rounded-2xl px-5 py-4",
+            isAgent && "bg-card text-card-foreground shadow-sm",
+            isSystem && "bg-yellow-50 border border-yellow-200 text-yellow-900",
+            !isAgent && !isSystem && "bg-muted text-foreground"
+          )}
+        >
+          <div 
+            className="text-base leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:hover:opacity-80"
+            dangerouslySetInnerHTML={{ __html: message.content }}
+          />
 
-        {/* Inline form inputs for latest agent message */}
-        {message.type === "agent" && isLatestMessage && onFormSubmit && (
-          <>
-            {message.inputType === "text" && (
-              <FormInput 
-                onSubmit={handleFormSubmit} 
-                disabled={disabled}
-                placeholder={message.inputFields?.[0]?.placeholder || "Type your answer..."}
-              />
-            )}
-            {message.inputType === "address" && (
-              <AddressInput 
-                onSubmit={handleFormSubmit} 
-                disabled={disabled}
-              />
-            )}
-            {message.inputType === "multifield" && message.inputFields && (
-              <MultiFieldInput 
-                fields={message.inputFields as { name: string; placeholder: string; type?: "text" | "email" | "tel" }[]} 
-                onSubmit={handleFormSubmit} 
-                disabled={disabled}
-              />
-            )}
-          </>
-        )}
+          {message.recommendation && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <PlatformRecommendation recommendation={message.recommendation} />
+            </div>
+          )}
 
-        {message.validation && (
-          <div
-            className={cn(
-              "mt-3 flex items-start gap-2 p-2 rounded-md text-sm",
-              message.validation.status === 'success' && "bg-success/10 text-success",
-              message.validation.status === 'error' && "bg-destructive/10 text-destructive",
-              message.validation.status === 'warning' && "bg-warning/10 text-warning",
-              message.validation.status === 'pending' && "bg-muted text-muted-foreground"
-            )}
-          >
-            {message.validation.status && ValidationIcon[message.validation.status] && (
-              <>
-                {React.createElement(ValidationIcon[message.validation.status], {
-                  className: "w-4 h-4 mt-0.5 flex-shrink-0",
-                })}
-              </>
-            )}
-            <span className="flex-1">{message.validation.message}</span>
-          </div>
-        )}
+          {/* Inline form inputs for latest agent message */}
+          {message.type === "agent" && isLatestMessage && onFormSubmit && (
+            <>
+              {message.inputType === "text" && (
+                <FormInput 
+                  onSubmit={handleFormSubmit} 
+                  disabled={disabled}
+                  placeholder={message.inputFields?.[0]?.placeholder || "Type your answer..."}
+                />
+              )}
+              {message.inputType === "address" && (
+                <AddressInput 
+                  onSubmit={handleFormSubmit} 
+                  disabled={disabled}
+                />
+              )}
+              {message.inputType === "multifield" && message.inputFields && (
+                <MultiFieldInput 
+                  fields={message.inputFields as { name: string; placeholder: string; type?: "text" | "email" | "tel" }[]} 
+                  onSubmit={handleFormSubmit} 
+                  disabled={disabled}
+                />
+              )}
+            </>
+          )}
 
-        <div className="text-xs text-muted-foreground mt-2">
-          {message.timestamp.toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })}
+          {message.validation && (
+            <div
+              className={cn(
+                "mt-4 pt-4 border-t flex items-start gap-2",
+                message.validation.status === 'success' && "border-green-200 text-green-800",
+                message.validation.status === 'error' && "border-red-200 text-red-800",
+                message.validation.status === 'warning' && "border-yellow-200 text-yellow-800",
+                message.validation.status === 'pending' && "border-blue-200 text-blue-800"
+              )}
+            >
+              {message.validation.status && ValidationIcon[message.validation.status] && (
+                <div className="flex-shrink-0 mt-0.5">
+                  {React.createElement(ValidationIcon[message.validation.status], {
+                    className: "w-4 h-4",
+                  })}
+                </div>
+              )}
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {message.validation.message}
+                </p>
+                {message.validation.details && (
+                  <p className="text-sm mt-1 opacity-80">
+                    {message.validation.details}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
+
+        {message.timestamp && (
+          <span className="text-xs text-muted-foreground px-1">
+            {message.timestamp.toLocaleTimeString([], { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}
+          </span>
+        )}
       </div>
     </div>
   );
