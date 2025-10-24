@@ -55,31 +55,30 @@ export const ChatMessage = ({
   return (
     <div
       className={cn(
-        "flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300",
-        isAgent || isSystem ? "justify-start" : "justify-end"
+        "flex flex-col gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300",
+        isAgent || isSystem ? "items-start" : "items-end"
       )}
     >
       {isAgent && (
-        <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-sm overflow-hidden">
-            <img src={paceLogo} alt="Pace" className="w-10 h-10 object-contain" />
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-sm overflow-hidden">
+              <img src={paceLogo} alt="Pace" className="w-10 h-10 object-contain" />
+            </div>
           </div>
+          <span className="text-sm font-medium text-foreground">
+            Pace
+          </span>
         </div>
       )}
 
       <div
         className={cn(
-          "flex flex-col gap-2 max-w-2xl",
+          "flex flex-col gap-2 max-w-2xl w-full",
+          isAgent && "pl-[60px]",
           !isAgent && !isSystem && "items-end"
         )}
       >
-        {isAgent && (
-          <div className="flex items-center gap-2 px-1">
-            <span className="text-sm font-medium text-foreground">
-              Pace
-            </span>
-          </div>
-        )}
 
         <div
           className={cn(
