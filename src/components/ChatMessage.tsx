@@ -33,11 +33,18 @@ export const ChatMessage = ({
 
   const handleFormSubmit = (value: string | Record<string, string>) => {
     if (onFormSubmit) {
-      // Convert object values to string format
+      // Convert object values to readable string format
       if (typeof value === 'object') {
         const formatted = Object.entries(value)
-          .map(([key, val]) => `${key}: ${val}`)
-          .join(', ');
+          .map(([key, val]) => {
+            // Convert camelCase to readable format
+            const readableKey = key
+              .replace(/([A-Z])/g, ' $1')
+              .replace(/^./, str => str.toUpperCase())
+              .trim();
+            return `${readableKey}: ${val}`;
+          })
+          .join('\n');
         onFormSubmit(formatted);
       } else {
         onFormSubmit(value);
@@ -79,11 +86,11 @@ export const ChatMessage = ({
             "rounded-2xl px-5 py-4",
             isAgent && "bg-card text-card-foreground shadow-sm",
             isSystem && "bg-yellow-50 border border-yellow-200 text-yellow-900",
-            !isAgent && !isSystem && "bg-muted text-foreground"
+            !isAgent && !isSystem && "bg-muted text-foreground whitespace-pre-line"
           )}
         >
           <div 
-            className="text-base leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:hover:opacity-80"
+            className="text-base leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:hover:opacity-80 whitespace-pre-line"
             dangerouslySetInnerHTML={{ __html: message.content }}
           />
 
