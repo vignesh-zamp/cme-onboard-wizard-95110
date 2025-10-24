@@ -29,17 +29,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex bg-background w-full">
-      <aside className="w-64 border-r border-border bg-card flex flex-col flex-shrink-0">
+      <aside className="w-64 border-r border-border bg-card flex flex-col flex-shrink-0 fixed left-0 top-0 h-screen">
         <div className="p-6 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground mb-1">CME Onboarding</h2>
           <p className="text-sm text-muted-foreground">powered by Pace</p>
         </div>
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 overflow-y-auto">
           <ProgressIndicator state={state} />
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 ml-64">
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-3xl mx-auto px-8 py-12">
             <div className="space-y-8">
