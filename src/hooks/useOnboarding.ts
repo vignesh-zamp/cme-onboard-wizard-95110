@@ -254,6 +254,12 @@ export const useOnboarding = () => {
             // Determine input type based on step
             let inputType: "text" | "address" | "multifield" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
+            let options: string[] | undefined = nextStepData.options;
+
+            // For boolean type questions, convert to Yes/No options
+            if (nextStepData.type === 'boolean') {
+              options = ["Yes", "No"];
+            }
 
             // Step 2: Geographic Scope - separate fields
             if (targetStep === 2) {
@@ -363,7 +369,7 @@ export const useOnboarding = () => {
                 type: "agent",
                 content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
                 timestamp: new Date(),
-                options: nextStepData.options,
+                options,
                 inputType,
                 inputFields,
               };
