@@ -6,6 +6,7 @@ import { PlatformRecommendation } from "@/components/PlatformRecommendation";
 import { FormInput } from "./FormInput";
 import { AddressInput } from "./AddressInput";
 import { MultiFieldInput } from "./MultiFieldInput";
+import paceLogo from "@/assets/pace-logo.png";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -53,8 +54,8 @@ export const ChatMessage = ({
     >
       {isAgent && (
         <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-sm">
-            <span className="text-primary-foreground text-base font-bold">P</span>
+          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-sm overflow-hidden">
+            <img src={paceLogo} alt="Pace" className="w-10 h-10 object-contain" />
           </div>
         </div>
       )}
