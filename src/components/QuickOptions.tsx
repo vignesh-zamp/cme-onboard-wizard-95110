@@ -14,14 +14,14 @@ export const QuickOptions = ({ options, onSelect, disabled }: QuickOptionsProps)
 
   if (isYesNo) {
     return (
-      <div className="grid grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-2 gap-3 mt-4">
         {options.map((option, index) => (
           <Button
             key={index}
             variant="outline"
             onClick={() => onSelect(option)}
             disabled={disabled}
-            className="rounded-xl px-8 py-8 text-lg font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+            className="rounded-lg px-5 py-3 text-base font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
           >
             {option}
           </Button>
@@ -31,14 +31,14 @@ export const QuickOptions = ({ options, onSelect, disabled }: QuickOptionsProps)
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2">
       {options.map((option, index) => (
         <Button
           key={index}
           variant="outline"
           onClick={() => onSelect(option)}
           disabled={disabled}
-          className="rounded-xl px-6 py-6 text-base hover:bg-accent"
+          className="rounded-lg px-4 py-3 text-sm hover:bg-accent"
         >
           {option}
         </Button>
