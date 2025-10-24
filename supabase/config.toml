@@ -1,1 +1,4 @@
 project_id = "tzygtfqderfnuhqdkjmu"
+
+[functions.kb-chat]
+verify_jwt = false
