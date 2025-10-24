@@ -1,110 +1,98 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Send, Key } from "lucide-react";
-import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import { MapPin, Send, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AddressInputProps {
   onSubmit: (address: string) => void;
   disabled?: boolean;
 }
 
+interface NominatimResult {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 export const AddressInput = ({ onSubmit, disabled = false }: AddressInputProps) => {
   const [address, setAddress] = useState("");
   const [aptUnit, setAptUnit] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
-  const [mapboxToken, setMapboxToken] = useState(() => {
-    return localStorage.getItem('mapbox_token') || '';
-  });
-  const [tokenError, setTokenError] = useState(false);
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const marker = useRef<mapboxgl.Marker | null>(null);
-  const geocoder = useRef<MapboxGeocoder | null>(null);
+  const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const debounceTimer = useRef<NodeJS.Timeout>();
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
+  // Close suggestions when clicking outside
   useEffect(() => {
-    if (!mapContainer.current || map.current || !mapboxToken) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
 
-    try {
-      // Initialize map
-      mapboxgl.accessToken = mapboxToken;
-      
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [-98.5795, 39.8283], // Center of US
-        zoom: 3,
-      });
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-      // Initialize marker
-      marker.current = new mapboxgl.Marker({
-        color: '#2563eb',
-      });
-
-      map.current.on('error', () => {
-        setTokenError(true);
-      });
-
-      setTokenError(false);
-
-      return () => {
-        map.current?.remove();
-      };
-    } catch (error) {
-      setTokenError(true);
+  // Fetch address suggestions from Nominatim
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
-  }, [mapboxToken]);
 
-  useEffect(() => {
-    if (!map.current || geocoder.current || !mapboxToken) return;
+    if (address.length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
 
-    try {
-      // Add geocoder
-      geocoder.current = new MapboxGeocoder({
-        accessToken: mapboxToken,
-        mapboxgl: mapboxgl as any,
-        marker: false,
-        placeholder: 'Street address, city, state',
-      });
+    setIsLoading(true);
 
-      geocoder.current.on('result', (e) => {
-        const { result } = e;
-        const coords: [number, number] = [result.center[0], result.center[1]];
-        
-        setAddress(result.place_name);
-        setSelectedLocation(coords);
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?` +
+          `format=json&` +
+          `q=${encodeURIComponent(address)}&` +
+          `countrycodes=us&` +
+          `addressdetails=1&` +
+          `limit=5`,
+          {
+            headers: {
+              'User-Agent': 'PaceOnboarding/1.0'
+            }
+          }
+        );
 
-        // Update marker
-        if (marker.current && map.current) {
-          marker.current.setLngLat(coords).addTo(map.current);
-          map.current.flyTo({ center: coords, zoom: 15 });
+        if (response.ok) {
+          const data: NominatimResult[] = await response.json();
+          setSuggestions(data);
+          setShowSuggestions(data.length > 0);
         }
-      });
-
-      geocoder.current.on('error', () => {
-        setTokenError(true);
-      });
-    } catch (error) {
-      setTokenError(true);
-    }
-  }, [mapboxToken]);
-
-  const handleTokenSave = () => {
-    if (mapboxToken.trim()) {
-      localStorage.setItem('mapbox_token', mapboxToken.trim());
-      setTokenError(false);
-      // Reset map to reinitialize with new token
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
+      } catch (error) {
+        console.error('Error fetching address suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoading(false);
       }
-      if (geocoder.current) {
-        geocoder.current = null;
+    }, 500);
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
       }
-    }
+    };
+  }, [address]);
+
+  const handleSelectAddress = (suggestion: NominatimResult) => {
+    setAddress(suggestion.display_name);
+    setSelectedAddress(suggestion.display_name);
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -116,94 +104,85 @@ export const AddressInput = ({ onSubmit, disabled = false }: AddressInputProps) 
       onSubmit(fullAddress);
       setAddress("");
       setAptUnit("");
-      setSelectedLocation(null);
-      if (marker.current) {
-        marker.current.remove();
-      }
+      setSelectedAddress("");
+      setSuggestions([]);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full mt-4 space-y-4">
-      {/* Mapbox Token Input */}
-      {(!mapboxToken || tokenError) && (
-        <div className="p-4 bg-muted/50 rounded-lg space-y-3">
-          <div className="flex items-start gap-2">
-            <Key className="w-5 h-5 text-primary mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium mb-1">Mapbox API Token Required</p>
-              <p className="text-xs text-muted-foreground mb-3">
-                Get your free token at <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">mapbox.com</a>
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  value={mapboxToken}
-                  onChange={(e) => setMapboxToken(e.target.value)}
-                  placeholder="pk.eyJ1IjoieW91cnVzZXJuYW1lIi..."
-                  className="flex-1 text-sm"
-                />
-                <Button
-                  type="button"
-                  onClick={handleTokenSave}
-                  size="sm"
-                  disabled={!mapboxToken.trim()}
-                >
-                  Save
-                </Button>
-              </div>
-              {tokenError && (
-                <p className="text-xs text-destructive mt-2">Invalid token. Please check and try again.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Map */}
-      <div className="relative w-full h-[200px] rounded-lg overflow-hidden border border-border">
-        <div ref={mapContainer} className="absolute inset-0" />
-        {!selectedLocation && (
-          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">
-                {mapboxToken ? 'Search for an address to view location' : 'Enter your Mapbox token above to enable address search'}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Address Search */}
+      {/* Address Search with Autocomplete */}
       <div className="flex gap-3 items-start">
         <div className="flex-1 space-y-3">
-          <div 
-            ref={(el) => {
-              if (el && geocoder.current && !el.querySelector('.mapboxgl-ctrl-geocoder')) {
-                el.appendChild(geocoder.current.onAdd(map.current!));
-              }
-            }}
-            className="geocoder-container"
-          />
+          <div className="relative" ref={suggestionsRef}>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Street address, city, state"
+                disabled={disabled}
+                className="h-12 pl-10 pr-10 text-base"
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              />
+              {isLoading && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground animate-spin" />
+              )}
+            </div>
+            
+            {/* Suggestions Dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-[300px] overflow-y-auto">
+                {suggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.place_id}
+                    type="button"
+                    onClick={() => handleSelectAddress(suggestion)}
+                    className={cn(
+                      "w-full text-left px-4 py-3 hover:bg-accent transition-colors",
+                      "border-b border-border last:border-b-0",
+                      "focus:bg-accent focus:outline-none"
+                    )}
+                  >
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-muted-foreground mt-1 flex-shrink-0" />
+                      <span className="text-sm">{suggestion.display_name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <Input
             type="text"
             value={aptUnit}
             onChange={(e) => setAptUnit(e.target.value)}
             placeholder="Apt/Unit # (optional)"
-            disabled={disabled || !mapboxToken}
+            disabled={disabled}
             className="h-12 text-base"
           />
         </div>
         <Button
           type="submit"
-          disabled={!address.trim() || disabled || !mapboxToken}
+          disabled={!address.trim() || disabled}
           size="icon"
           className="h-12 w-12 flex-shrink-0"
         >
           <Send className="w-5 h-5" />
         </Button>
       </div>
+
+      {/* Info about validation */}
+      {selectedAddress && (
+        <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+          <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            Address validated using OpenStreetMap
+          </p>
+        </div>
+      )}
     </form>
   );
 };
