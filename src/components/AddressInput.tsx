@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MapPin, Send, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface AddressInputProps {
   onSubmit: (address: string) => void;
@@ -23,8 +25,11 @@ export const AddressInput = ({ onSubmit, disabled = false }: AddressInputProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lon: number } | null>(null);
   const debounceTimer = useRef<NodeJS.Timeout>();
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -91,9 +96,54 @@ export const AddressInput = ({ onSubmit, disabled = false }: AddressInputProps) 
   const handleSelectAddress = (suggestion: NominatimResult) => {
     setAddress(suggestion.display_name);
     setSelectedAddress(suggestion.display_name);
+    setSelectedCoords({ lat: parseFloat(suggestion.lat), lon: parseFloat(suggestion.lon) });
     setSuggestions([]);
     setShowSuggestions(false);
   };
+
+  // Initialize minimap when coordinates are selected
+  useEffect(() => {
+    if (!selectedCoords || !mapRef.current) return;
+
+    // Clean up existing map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+    }
+
+    // Create new map
+    const map = L.map(mapRef.current, {
+      center: [selectedCoords.lat, selectedCoords.lon],
+      zoom: 15,
+      zoomControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Fix default marker icon issue with webpack
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    });
+
+    L.marker([selectedCoords.lat, selectedCoords.lon]).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [selectedCoords]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +155,7 @@ export const AddressInput = ({ onSubmit, disabled = false }: AddressInputProps) 
       setAddress("");
       setAptUnit("");
       setSelectedAddress("");
+      setSelectedCoords(null);
       setSuggestions([]);
     }
   };
@@ -174,13 +225,19 @@ export const AddressInput = ({ onSubmit, disabled = false }: AddressInputProps) 
         </Button>
       </div>
 
-      {/* Info about validation */}
-      {selectedAddress && (
-        <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-          <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Address validated using OpenStreetMap
-          </p>
+      {/* Minimap and validation info */}
+      {selectedCoords && (
+        <div className="space-y-3">
+          <div 
+            ref={mapRef} 
+            className="w-full h-40 rounded-lg border border-border overflow-hidden"
+          />
+          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              Address validated using OpenStreetMap
+            </p>
+          </div>
         </div>
       )}
     </form>
