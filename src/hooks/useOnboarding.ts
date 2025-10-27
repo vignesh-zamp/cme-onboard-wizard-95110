@@ -256,13 +256,29 @@ export const useOnboarding = () => {
           setIsFAQMode(false);
           
           setTimeout(() => {
+            // Properly restore input type based on step type
+            let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" | undefined;
+            let restoredSelectOptions: string[] | undefined;
+            
+            if (savedStepData.type === 'boolean') {
+              restoredInputType = 'none';
+            } else if (savedStepData.type === 'country-dropdown') {
+              restoredInputType = 'country-dropdown';
+            } else if (savedStepData.type === 'dropdown') {
+              restoredInputType = 'select';
+              restoredSelectOptions = savedStepData.options;
+            } else if (savedStepData.type === 'entity-registration') {
+              restoredInputType = 'entity-registration';
+            }
+            
             const returnMessage: ChatMessage = {
               id: `return-to-question-${Date.now()}`,
               type: "agent",
               content: "Now, let's continue with your onboarding:\n\n" + savedStepData.question + (savedStepData.helpText ? `\n\n💡 ${savedStepData.helpText}` : ''),
               timestamp: new Date(),
               options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : savedStepData.options,
-              inputType: savedStepData.type === 'boolean' ? 'none' : undefined,
+              inputType: restoredInputType,
+              selectOptions: restoredSelectOptions,
             };
             setMessages((prev) => [...prev, returnMessage]);
             setIsProcessing(false);
@@ -537,7 +553,7 @@ export const useOnboarding = () => {
 
       setState(newState);
     },
-    [state, simulateValidation]
+    [state, simulateValidation, isFAQMode, savedStepData, platformRecommendation]
   );
 
   return {
