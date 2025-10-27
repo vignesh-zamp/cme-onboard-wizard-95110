@@ -6,6 +6,9 @@ import { PlatformRecommendation } from "@/components/PlatformRecommendation";
 import { FormInput } from "./FormInput";
 import { AddressInput } from "./AddressInput";
 import { MultiFieldInput } from "./MultiFieldInput";
+import { SelectInput } from "./SelectInput";
+import { CountryDropdownInput } from "./CountryDropdownInput";
+import { EntityRegistrationInput } from "./EntityRegistrationInput";
 import paceLogo from "@/assets/pace-logo.png";
 
 interface ChatMessageProps {
@@ -139,6 +142,26 @@ export const ChatMessage = ({
                 <MultiFieldInput 
                   fields={message.inputFields as { name: string; placeholder: string; type?: "text" | "email" | "tel" }[]} 
                   onSubmit={handleFormSubmit} 
+                  disabled={disabled}
+                />
+              )}
+              {message.inputType === "select" && message.selectOptions && (
+                <SelectInput 
+                  options={message.selectOptions}
+                  onSubmit={handleFormSubmit} 
+                  disabled={disabled}
+                  placeholder="Select an option..."
+                />
+              )}
+              {message.inputType === "country-dropdown" && (
+                <CountryDropdownInput 
+                  onSubmit={(values) => handleFormSubmit(`Country: ${values.country}, Cross-Border Operations: ${values.crossBorder}`)}
+                  disabled={disabled}
+                />
+              )}
+              {message.inputType === "entity-registration" && (
+                <EntityRegistrationInput 
+                  onSubmit={(values) => handleFormSubmit(`Legal Name: ${values.legalName}, Jurisdiction: ${values.jurisdiction}`)}
                   disabled={disabled}
                 />
               )}

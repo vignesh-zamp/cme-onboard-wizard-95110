@@ -25,15 +25,16 @@ export interface ChatMessage {
     details?: string;
   };
   recommendation?: PlatformRecommendation;
-  inputType?: "text" | "address" | "multifield" | "none";
+  inputType?: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none";
   inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
+  selectOptions?: string[];
 }
 
 export interface Step {
   id: number;
   title: string;
   question: string;
-  type: 'text' | 'select' | 'multiselect' | 'upload' | 'boolean';
+  type: 'text' | 'select' | 'multiselect' | 'upload' | 'boolean' | 'dropdown' | 'country-dropdown' | 'entity-registration';
   options?: string[];
   validation?: (value: any, state: OnboardingState) => boolean;
   conditional?: (state: OnboardingState) => boolean;

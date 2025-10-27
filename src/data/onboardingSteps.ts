@@ -21,7 +21,7 @@ export const onboardingSteps: Step[] = [
     id: 2,
     title: "Geographic Scope",
     question: "What is your firm's primary jurisdiction and cross-border operations?",
-    type: "text",
+    type: "country-dropdown",
     helpText: "This helps determine applicable regulatory requirements and reporting obligations."
   },
   {
@@ -72,7 +72,7 @@ export const onboardingSteps: Step[] = [
     id: 6,
     title: "Entity Registration",
     question: "Excellent! Now let's register your entity. Please provide your firm's full legal name and jurisdiction of incorporation.",
-    type: "text",
+    type: "entity-registration",
     helpText: "This information will be validated against existing corporate registries in real-time."
   },
   {

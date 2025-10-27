@@ -254,19 +254,34 @@ export const useOnboarding = () => {
         // Re-display the current question with error
         setTimeout(() => {
           const currentStepData = onboardingSteps[state.currentStep - 1];
-          let inputType: "text" | "address" | "multifield" | "none" = "text";
+          let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "text";
+          let selectOptions: string[] | undefined;
           
           if (currentStepData.type === 'boolean') {
             inputType = "none";
           }
           
+          if (currentStepData.type === 'country-dropdown') {
+            inputType = "country-dropdown";
+          }
+          
+          if (currentStepData.type === 'dropdown') {
+            inputType = "select";
+            selectOptions = currentStepData.options;
+          }
+          
+          if (currentStepData.type === 'entity-registration') {
+            inputType = "entity-registration";
+          }
+          
           const retryMessage: ChatMessage = {
             id: `agent-retry-${Date.now()}`,
             type: "agent",
-            content: currentStepData.question,
+            content: currentStepData.question + (currentStepData.helpText ? `\n\n💡 ${currentStepData.helpText}` : ''),
             timestamp: new Date(),
             options: currentStepData.type === 'boolean' ? ['Yes', 'No'] : undefined,
             inputType,
+            selectOptions,
           };
           setMessages((prev) => [...prev, retryMessage]);
           setIsProcessing(false);
@@ -295,31 +310,30 @@ export const useOnboarding = () => {
             const nextStepData = onboardingSteps[targetStep - 1];
             
             // Determine input type based on step
-            let inputType: "text" | "address" | "multifield" | "none" = "none";
+            let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             let options: string[] | undefined = nextStepData.options;
+            let selectOptions: string[] | undefined;
 
             // For boolean type questions, convert to Yes/No options
             if (nextStepData.type === 'boolean') {
               options = ["Yes", "No"];
             }
 
-            // Step 2: Geographic Scope - separate fields
-            if (targetStep === 2) {
-              inputType = "multifield";
-              inputFields = [
-                { name: "countryOfIncorporation", placeholder: "Country of Incorporation", type: "text" },
-                { name: "crossBorderOperations", placeholder: "Cross-border Operations (if any)", type: "text" },
-              ];
+            // Handle country-dropdown type
+            if (nextStepData.type === 'country-dropdown') {
+              inputType = "country-dropdown";
             }
             
-            // Step 6: Entity Registration - separate fields
-            if (targetStep === 6) {
-              inputType = "multifield";
-              inputFields = [
-                { name: "legalName", placeholder: "Full Legal Name", type: "text" },
-                { name: "jurisdiction", placeholder: "Jurisdiction of Incorporation", type: "text" },
-              ];
+            // Handle dropdown type
+            if (nextStepData.type === 'dropdown') {
+              inputType = "select";
+              selectOptions = nextStepData.options;
+            }
+            
+            // Handle entity-registration type
+            if (nextStepData.type === 'entity-registration') {
+              inputType = "entity-registration";
             }
             
             // Step 9: Entity Details - separate fields for each component
@@ -415,6 +429,7 @@ export const useOnboarding = () => {
                 options,
                 inputType,
                 inputFields,
+                selectOptions,
               };
               setMessages((prev) => [...prev, agentMessage]);
             }
