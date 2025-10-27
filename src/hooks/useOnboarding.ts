@@ -241,6 +241,35 @@ export const useOnboarding = () => {
         newState.firmName = content.split(',')[0] || content.substring(0, 50);
       }
       
+      // Only move to next step if validation passed or no validation exists
+      if (validation && validation.status === 'error') {
+        // Don't move to next step on error - stay on current step to allow retry
+        setState(newState);
+        setIsProcessing(false);
+        
+        // Re-display the current question with error
+        setTimeout(() => {
+          const currentStepData = onboardingSteps[state.currentStep - 1];
+          let inputType: "text" | "address" | "multifield" | "none" = "text";
+          
+          if (currentStepData.type === 'boolean') {
+            inputType = "none";
+          }
+          
+          const retryMessage: ChatMessage = {
+            id: `agent-retry-${Date.now()}`,
+            type: "agent",
+            content: currentStepData.question,
+            timestamp: new Date(),
+            options: currentStepData.type === 'boolean' ? ['Yes', 'No'] : undefined,
+            inputType,
+          };
+          setMessages((prev) => [...prev, retryMessage]);
+          setIsProcessing(false);
+        }, 500);
+        return;
+      }
+      
       // Move to next step
       const nextStep = state.currentStep + 1;
       
