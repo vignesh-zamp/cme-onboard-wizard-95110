@@ -39,40 +39,68 @@ export const MultiFieldInput = ({
 
   const allFilled = fields.every(field => values[field.name]?.trim());
 
-  // Group fields by contact (Contact 1 vs Contact 2)
-  const contact1Fields = fields.filter(field => 
-    field.name.toLowerCase().includes('contact1') || 
-    field.placeholder.toLowerCase().includes('contact 1')
+  // Check if this is a two-person contact form (billing contacts or VOs)
+  const isContactForm = fields.some(field => 
+    field.name.includes('contact1') || field.name.includes('contact2') ||
+    field.name.includes('vo1') || field.name.includes('vo2')
   );
-  const contact2Fields = fields.filter(field => 
-    field.name.toLowerCase().includes('contact2') || 
-    field.placeholder.toLowerCase().includes('contact 2')
-  );
+
+  // Group fields by person if it's a contact form
+  const group1Fields = isContactForm ? fields.filter(field => 
+    field.name.includes('contact1') || field.name.includes('vo1')
+  ) : [];
+  
+  const group2Fields = isContactForm ? fields.filter(field => 
+    field.name.includes('contact2') || field.name.includes('vo2')
+  ) : [];
+
+  // Determine labels based on field names
+  const group1Label = fields[0]?.name.includes('vo') ? 'Verification Officer 1' : 'Contact 1';
+  const group2Label = fields[0]?.name.includes('vo') ? 'Verification Officer 2' : 'Contact 2';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Contact 1 Column */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Contact 1</h3>
-          {contact1Fields.map((field) => (
-            <Input
-              key={field.name}
-              type={field.type || "text"}
-              value={values[field.name]}
-              onChange={(e) => handleChange(field.name, e.target.value)}
-              placeholder={field.placeholder}
-              disabled={disabled}
-              required
-              className="w-full text-base py-6 rounded-xl border-input bg-background"
-            />
-          ))}
-        </div>
+      {isContactForm ? (
+        // Two-column layout for contact/VO forms
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Group 1 Column */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">{group1Label}</h3>
+            {group1Fields.map((field) => (
+              <Input
+                key={field.name}
+                type={field.type || "text"}
+                value={values[field.name]}
+                onChange={(e) => handleChange(field.name, e.target.value)}
+                placeholder={field.placeholder}
+                disabled={disabled}
+                required
+                className="w-full text-base py-6 rounded-xl border-input bg-background"
+              />
+            ))}
+          </div>
 
-        {/* Contact 2 Column */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Contact 2</h3>
-          {contact2Fields.map((field) => (
+          {/* Group 2 Column */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">{group2Label}</h3>
+            {group2Fields.map((field) => (
+              <Input
+                key={field.name}
+                type={field.type || "text"}
+                value={values[field.name]}
+                onChange={(e) => handleChange(field.name, e.target.value)}
+                placeholder={field.placeholder}
+                disabled={disabled}
+                required
+                className="w-full text-base py-6 rounded-xl border-input bg-background"
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        // Regular grid layout for other forms
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {fields.map((field) => (
             <Input
               key={field.name}
               type={field.type || "text"}
@@ -85,7 +113,7 @@ export const MultiFieldInput = ({
             />
           ))}
         </div>
-      </div>
+      )}
       <Button
         type="submit"
         disabled={disabled || !allFilled}
