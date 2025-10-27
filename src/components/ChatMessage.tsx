@@ -16,13 +16,15 @@ interface ChatMessageProps {
   onFormSubmit?: (value: string | Record<string, string>) => void;
   isLatestMessage?: boolean;
   disabled?: boolean;
+  onBack?: () => void;
 }
 
 export const ChatMessage = ({ 
   message, 
   onFormSubmit, 
   isLatestMessage = false,
-  disabled = false 
+  disabled = false,
+  onBack
 }: ChatMessageProps) => {
   const isAgent = message.type === 'agent';
   const isSystem = message.type === 'system';
@@ -130,6 +132,8 @@ export const ChatMessage = ({
                   onSubmit={handleFormSubmit} 
                   disabled={disabled}
                   placeholder={message.inputFields?.[0]?.placeholder || "Type your answer..."}
+                  onBack={onBack}
+                  showBackButton={message.showBackButton}
                 />
               )}
               {message.inputType === "address" && (

@@ -28,6 +28,7 @@ export interface ChatMessage {
   inputType?: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none";
   inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
   selectOptions?: string[];
+  showBackButton?: boolean;
 }
 
 export interface Step {

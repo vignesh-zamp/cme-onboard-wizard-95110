@@ -1,20 +1,24 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, ArrowLeft } from "lucide-react";
 
 interface FormInputProps {
   onSubmit: (value: string) => void;
   disabled?: boolean;
   placeholder?: string;
   type?: "text" | "email" | "tel";
+  onBack?: () => void;
+  showBackButton?: boolean;
 }
 
 export const FormInput = ({ 
   onSubmit, 
   disabled = false,
   placeholder = "Type your answer...",
-  type = "text"
+  type = "text",
+  onBack,
+  showBackButton = false
 }: FormInputProps) => {
   const [input, setInput] = useState("");
 
@@ -36,13 +40,26 @@ export const FormInput = ({
         disabled={disabled}
         className="w-full text-base py-6 rounded-xl border-input bg-background"
       />
-      <Button 
-        type="submit" 
-        disabled={disabled || !input.trim()} 
-        className="w-full py-6 rounded-xl text-base"
-      >
-        Continue
-      </Button>
+      <div className="flex gap-2">
+        {showBackButton && onBack && (
+          <Button 
+            type="button"
+            onClick={onBack}
+            variant="outline"
+            className="px-6 py-6 rounded-xl text-base"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+        )}
+        <Button 
+          type="submit" 
+          disabled={disabled || !input.trim()} 
+          className="flex-1 py-6 rounded-xl text-base"
+        >
+          Continue
+        </Button>
+      </div>
     </form>
   );
 };

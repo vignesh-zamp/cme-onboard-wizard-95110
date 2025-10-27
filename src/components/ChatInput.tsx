@@ -1,18 +1,22 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, ArrowLeft } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  onBack?: () => void;
+  showBackButton?: boolean;
 }
 
 export const ChatInput = ({ 
   onSend, 
   disabled = false,
-  placeholder = "Type your response..." 
+  placeholder = "Type your response...",
+  onBack,
+  showBackButton = false
 }: ChatInputProps) => {
   const [input, setInput] = useState("");
 
@@ -34,6 +38,17 @@ export const ChatInput = ({
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className="flex gap-2 items-end">
+        {showBackButton && onBack && (
+          <Button
+            type="button"
+            onClick={onBack}
+            variant="outline"
+            size="icon"
+            className="h-[60px] w-[60px] flex-shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        )}
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}

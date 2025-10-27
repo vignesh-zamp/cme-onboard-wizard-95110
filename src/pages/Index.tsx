@@ -7,7 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 
 const Index = () => {
-  const { state, messages, isProcessing, processUserMessage } = useOnboarding();
+  const { state, messages, isProcessing, processUserMessage, isFAQMode, handleBackFromFAQ } = useOnboarding();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -50,6 +50,7 @@ const Index = () => {
                     }
                     isLatestMessage={index === messages.length - 1}
                     disabled={isProcessing}
+                    onBack={handleBackFromFAQ}
                   />
                 ))}
                 <div ref={messagesEndRef} />
@@ -69,6 +70,8 @@ const Index = () => {
                   <ChatInput
                     onSend={processUserMessage}
                     disabled={isProcessing}
+                    showBackButton={isFAQMode}
+                    onBack={handleBackFromFAQ}
                   />
                 )}
               </div>

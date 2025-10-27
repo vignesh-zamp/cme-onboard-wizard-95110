@@ -42,6 +42,38 @@ export const useOnboarding = () => {
   const [isFAQMode, setIsFAQMode] = useState(false);
   const [savedStepData, setSavedStepData] = useState<any>(null);
 
+  const handleBackFromFAQ = useCallback(() => {
+    if (!savedStepData) return;
+    
+    setIsFAQMode(false);
+    
+    // Restore the original question with options
+    let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" | undefined;
+    let restoredSelectOptions: string[] | undefined;
+    
+    if (savedStepData.type === 'boolean') {
+      restoredInputType = 'none';
+    } else if (savedStepData.type === 'country-dropdown') {
+      restoredInputType = 'country-dropdown';
+    } else if (savedStepData.type === 'dropdown') {
+      restoredInputType = 'select';
+      restoredSelectOptions = savedStepData.options;
+    } else if (savedStepData.type === 'entity-registration') {
+      restoredInputType = 'entity-registration';
+    }
+    
+    const returnMessage: ChatMessage = {
+      id: `return-to-question-${Date.now()}`,
+      type: "agent",
+      content: savedStepData.question + (savedStepData.helpText ? `\n\n💡 ${savedStepData.helpText}` : ''),
+      timestamp: new Date(),
+      options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : savedStepData.options,
+      inputType: restoredInputType,
+      selectOptions: restoredSelectOptions,
+    };
+    setMessages((prev) => [...prev, returnMessage]);
+  }, [savedStepData]);
+
   // AI logic to determine platform recommendation based on user answers
   const generatePlatformRecommendation = useCallback(
     (answers: Record<string, any>): PlatformRecommendation => {
@@ -205,6 +237,7 @@ export const useOnboarding = () => {
           content: "I'm here to help! Ask me any question about the current step or the onboarding process.",
           timestamp: new Date(),
           inputType: "text",
+          showBackButton: true,
         };
         setMessages((prev) => [...prev, helpMessage]);
         return;
@@ -562,5 +595,7 @@ export const useOnboarding = () => {
     isProcessing,
     processUserMessage,
     platformRecommendation,
+    isFAQMode,
+    handleBackFromFAQ,
   };
 };
