@@ -13,8 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    const { question } = await req.json();
+    const { question, context } = await req.json();
     console.log('Received question:', question);
+    console.log('Context:', context);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
@@ -61,14 +62,29 @@ serve(async (req) => {
 
     console.log('KB context length:', kbContext.length);
 
+    // Build context information
+    let contextInfo = '';
+    if (context) {
+      contextInfo = `\n\nCONTEXT ABOUT THE USER'S CURRENT ONBOARDING SESSION:
+- Current Step: ${context.currentStep}
+- Step Title: ${context.stepTitle}
+- Current Question: ${context.stepQuestion}
+- Firm Name: ${context.firmName || 'Not yet provided'}
+- Previous Answers: ${JSON.stringify(context.previousAnswers, null, 2)}
+
+Use this context to provide more relevant and personalized answers to the user's question.`;
+    }
+
     // Call Lovable AI with the KB context
-    const systemPrompt = `You are a helpful FAQ assistant for PACE (Platform for Advanced Clinical Excellence). 
+    const systemPrompt = `You are a helpful FAQ assistant for CME Group's onboarding system. 
 Your role is to answer user questions based ONLY on the information provided in the Knowledge Base documents below.
 
 If the answer is not in the Knowledge Base, politely say "I don't have that information in my knowledge base. Please contact support for assistance."
 
+When answering, consider the user's current progress in the onboarding process to provide contextual and relevant help.
+
 Knowledge Base:
-${kbContext || 'No knowledge base documents are currently available.'}`;
+${kbContext || 'No knowledge base documents are currently available.'}${contextInfo}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

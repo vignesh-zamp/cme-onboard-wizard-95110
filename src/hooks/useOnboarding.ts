@@ -39,6 +39,8 @@ export const useOnboarding = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [platformRecommendation, setPlatformRecommendation] = useState<PlatformRecommendation | null>(null);
+  const [isFAQMode, setIsFAQMode] = useState(false);
+  const [savedStepData, setSavedStepData] = useState<any>(null);
 
   // AI logic to determine platform recommendation based on user answers
   const generatePlatformRecommendation = useCallback(
@@ -191,6 +193,90 @@ export const useOnboarding = () => {
 
   const processUserMessage = useCallback(
     async (content: string) => {
+      // Handle "Need Help" button click
+      if (content === "__NEED_HELP__") {
+        setIsFAQMode(true);
+        const currentStepData = onboardingSteps[state.currentStep - 1];
+        setSavedStepData(currentStepData);
+        
+        const helpMessage: ChatMessage = {
+          id: `help-prompt-${Date.now()}`,
+          type: "agent",
+          content: "I'm here to help! Ask me any question about the current step or the onboarding process.",
+          timestamp: new Date(),
+          inputType: "text",
+        };
+        setMessages((prev) => [...prev, helpMessage]);
+        return;
+      }
+
+      // Handle FAQ question in FAQ mode
+      if (isFAQMode) {
+        setIsProcessing(true);
+        
+        // Add user's FAQ question
+        const userMessage: ChatMessage = {
+          id: `user-faq-${Date.now()}`,
+          type: "user",
+          content,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, userMessage]);
+
+        try {
+          // Call kb-chat with context
+          const { supabase } = await import("@/integrations/supabase/client");
+          const currentStepData = onboardingSteps[state.currentStep - 1];
+          
+          const { data, error } = await supabase.functions.invoke('kb-chat', {
+            body: {
+              question: content,
+              context: {
+                currentStep: state.currentStep,
+                stepTitle: currentStepData.title,
+                stepQuestion: currentStepData.question,
+                previousAnswers: state.answers,
+                firmName: state.firmName,
+              }
+            }
+          });
+
+          if (error) throw error;
+
+          // Add FAQ answer
+          const faqAnswerMessage: ChatMessage = {
+            id: `faq-answer-${Date.now()}`,
+            type: "agent",
+            content: data.answer,
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, faqAnswerMessage]);
+
+          // Exit FAQ mode and restore the question with options
+          setIsFAQMode(false);
+          
+          setTimeout(() => {
+            const returnMessage: ChatMessage = {
+              id: `return-to-question-${Date.now()}`,
+              type: "agent",
+              content: "Now, let's continue with your onboarding:\n\n" + savedStepData.question + (savedStepData.helpText ? `\n\n💡 ${savedStepData.helpText}` : ''),
+              timestamp: new Date(),
+              options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : savedStepData.options,
+              inputType: savedStepData.type === 'boolean' ? 'none' : undefined,
+            };
+            setMessages((prev) => [...prev, returnMessage]);
+            setIsProcessing(false);
+          }, 500);
+          
+        } catch (error) {
+          console.error('FAQ error:', error);
+          toast.error("Failed to get help. Please try again.");
+          setIsProcessing(false);
+          setIsFAQMode(false);
+        }
+        return;
+      }
+
       setIsProcessing(true);
 
       // Add user message
