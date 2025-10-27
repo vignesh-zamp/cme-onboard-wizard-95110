@@ -152,10 +152,14 @@ export const useOnboarding = () => {
               }
               break;
             
-            case 15: // CME Account
+            case 15: // Canada Details
+              // No stub validation for Canada details; proceed without special checks
+              resolve(undefined);
+              break;
+            
+            case 16: // CME Account
               const allowedEmails = ['vivaan@zamp.ai', 'prabhu@zamp.ai'];
               const email = value.toLowerCase().trim();
-              
               if (allowedEmails.includes(email)) {
                 resolve({
                   status: "success",
@@ -169,7 +173,7 @@ export const useOnboarding = () => {
               }
               break;
             
-            case 16: // VO Validation
+            case 17: // VO Validation
               resolve({
                 status: "success",
                 message: "✓ Verification Officers validated and properly mapped to your entity.",
