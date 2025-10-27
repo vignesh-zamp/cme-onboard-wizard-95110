@@ -88,10 +88,30 @@ export const ChatMessage = ({
             !isAgent && !isSystem && "bg-muted text-foreground whitespace-pre-line"
           )}
         >
-          <div 
-            className="text-base leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:hover:opacity-80 whitespace-pre-line"
-            dangerouslySetInnerHTML={{ __html: message.content }}
-          />
+          {(() => {
+            // Split content by lightbulb emoji to separate main question from insight
+            const parts = message.content.split(/💡\s*/);
+            const mainContent = parts[0];
+            const insightText = parts.length > 1 ? parts.slice(1).join('💡 ') : null;
+            
+            return (
+              <>
+                <div 
+                  className="text-base leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:hover:opacity-80 whitespace-pre-line"
+                  dangerouslySetInnerHTML={{ __html: mainContent }}
+                />
+                {insightText && (
+                  <div className="mt-3 pt-3 border-t border-border/50">
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground italic">
+                      <span className="text-base">💡</span>
+                      <span className="leading-relaxed">{insightText}</span>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+
 
           {message.recommendation && (
             <div className="mt-4 pt-4 border-t border-border">
