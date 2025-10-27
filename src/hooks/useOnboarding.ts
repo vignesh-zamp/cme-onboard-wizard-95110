@@ -153,10 +153,20 @@ export const useOnboarding = () => {
               break;
             
             case 15: // CME Account
-              resolve({
-                status: "success",
-                message: "✓ CME Account found and linked to registration.",
-              });
+              const allowedEmails = ['vivaan@zamp.ai', 'prabhu@zamp.ai'];
+              const email = value.toLowerCase().trim();
+              
+              if (allowedEmails.includes(email)) {
+                resolve({
+                  status: "success",
+                  message: "✓ CME Account found and linked to registration.",
+                });
+              } else {
+                resolve({
+                  status: "error",
+                  message: "✗ No CME Group user account found for this email address.",
+                });
+              }
               break;
             
             case 16: // VO Validation
