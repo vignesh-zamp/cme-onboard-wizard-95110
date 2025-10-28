@@ -237,6 +237,7 @@ export const useOnboarding = () => {
           content: "I'm here to help! Ask me any question about the current step or the onboarding process.",
           timestamp: new Date(),
           inputType: "text",
+          inputFields: [{ name: "question", placeholder: "Type your question...", type: "text" }],
           showBackButton: true,
         };
         setMessages((prev) => [...prev, helpMessage]);
