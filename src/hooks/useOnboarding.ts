@@ -420,12 +420,49 @@ export const useOnboarding = () => {
           
           setTimeout(() => {
             const nextStepData = onboardingSteps[nextStep - 1];
+
+            // Determine appropriate input UI for the next step (avoid hardcoding "text")
+            let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "none";
+            let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
+            let options: string[] | undefined = nextStepData.options;
+            let selectOptions: string[] | undefined;
+
+            // Boolean -> Yes/No buttons
+            if (nextStepData.type === 'boolean') {
+              options = ["Yes", "No"]; 
+            }
+            // Country dropdown
+            if (nextStepData.type === 'country-dropdown') {
+              inputType = "country-dropdown";
+            }
+            // Dropdown -> Select
+            if (nextStepData.type === 'dropdown') {
+              inputType = "select";
+              selectOptions = nextStepData.options;
+            }
+            // Entity registration
+            if (nextStepData.type === 'entity-registration') {
+              inputType = "entity-registration";
+            }
+            // Multifield (e.g., Step 9)
+            if (nextStepData.type === 'multifield' && nextStepData.inputFields) {
+              inputType = "multifield";
+              inputFields = nextStepData.inputFields;
+            }
+            // Address input for Registered Address (Step 10)
+            if (nextStep === 10) {
+              inputType = "address";
+            }
+
             const agentMessage: ChatMessage = {
               id: `agent-${Date.now()}`,
               type: "agent",
               content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
               timestamp: new Date(),
-              inputType: "text",
+              options,
+              inputType,
+              selectOptions,
+              inputFields,
             };
             setMessages((prev) => [...prev, agentMessage]);
             setIsProcessing(false);
