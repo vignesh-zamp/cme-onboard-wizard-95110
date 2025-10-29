@@ -61,7 +61,7 @@ export const WelcomePage = ({ onGetStarted }: WelcomePageProps) => {
             <img 
               src={paceLogo} 
               alt="Pace Logo" 
-              className="h-6 w-auto object-contain"
+              className="h-8 w-8 rounded-full object-cover"
             />
           </div>
         </div>
