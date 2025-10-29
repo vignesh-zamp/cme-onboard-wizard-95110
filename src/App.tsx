@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { KBChatWidget } from "@/components/KBChatWidget";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { UploadKB } from "./pages/UploadKB";
@@ -15,7 +14,6 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <KBChatWidget />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
