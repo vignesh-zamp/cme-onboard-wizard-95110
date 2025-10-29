@@ -50,6 +50,7 @@ export const useOnboarding = () => {
     // Restore the original question with options
     let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" | undefined;
     let restoredSelectOptions: string[] | undefined;
+    let restoredInputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
     
     if (savedStepData.type === 'boolean') {
       restoredInputType = 'none';
@@ -60,6 +61,9 @@ export const useOnboarding = () => {
       restoredSelectOptions = savedStepData.options;
     } else if (savedStepData.type === 'entity-registration') {
       restoredInputType = 'entity-registration';
+    } else if (savedStepData.type === 'multifield' && savedStepData.inputFields) {
+      restoredInputType = 'multifield';
+      restoredInputFields = savedStepData.inputFields;
     }
     
     const returnMessage: ChatMessage = {
@@ -70,6 +74,7 @@ export const useOnboarding = () => {
       options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : savedStepData.options,
       inputType: restoredInputType,
       selectOptions: restoredSelectOptions,
+      inputFields: restoredInputFields,
     };
     setMessages((prev) => [...prev, returnMessage]);
   }, [savedStepData]);
@@ -293,6 +298,7 @@ export const useOnboarding = () => {
             // Properly restore input type based on step type
             let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" | undefined;
             let restoredSelectOptions: string[] | undefined;
+            let restoredInputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             
             if (savedStepData.type === 'boolean') {
               restoredInputType = 'none';
@@ -303,6 +309,9 @@ export const useOnboarding = () => {
               restoredSelectOptions = savedStepData.options;
             } else if (savedStepData.type === 'entity-registration') {
               restoredInputType = 'entity-registration';
+            } else if (savedStepData.type === 'multifield' && savedStepData.inputFields) {
+              restoredInputType = 'multifield';
+              restoredInputFields = savedStepData.inputFields;
             }
             
             const returnMessage: ChatMessage = {
@@ -313,6 +322,7 @@ export const useOnboarding = () => {
               options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : savedStepData.options,
               inputType: restoredInputType,
               selectOptions: restoredSelectOptions,
+              inputFields: restoredInputFields,
             };
             setMessages((prev) => [...prev, returnMessage]);
             setIsProcessing(false);
@@ -463,6 +473,7 @@ export const useOnboarding = () => {
           const currentStepData = onboardingSteps[state.currentStep - 1];
           let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "text";
           let selectOptions: string[] | undefined;
+          let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
           
           if (currentStepData.type === 'boolean') {
             inputType = "none";
@@ -481,6 +492,11 @@ export const useOnboarding = () => {
             inputType = "entity-registration";
           }
           
+          if (currentStepData.type === 'multifield' && currentStepData.inputFields) {
+            inputType = "multifield";
+            inputFields = currentStepData.inputFields;
+          }
+          
           const retryMessage: ChatMessage = {
             id: `agent-retry-${Date.now()}`,
             type: "agent",
@@ -489,6 +505,7 @@ export const useOnboarding = () => {
             options: currentStepData.type === 'boolean' ? ['Yes', 'No'] : undefined,
             inputType,
             selectOptions,
+            inputFields,
           };
           setMessages((prev) => [...prev, retryMessage]);
           setIsProcessing(false);
@@ -543,15 +560,10 @@ export const useOnboarding = () => {
               inputType = "entity-registration";
             }
             
-            // Step 9: Entity Details - separate fields for each component
-            if (targetStep === 9) {
+            // Handle multifield type
+            if (nextStepData.type === 'multifield' && nextStepData.inputFields) {
               inputType = "multifield";
-              inputFields = [
-                { name: "legalName", placeholder: "Legal Name", type: "text" },
-                { name: "dba", placeholder: "DBA (if applicable)", type: "text" },
-                { name: "directParent", placeholder: "Direct Parent", type: "text" },
-                { name: "ultimateParent", placeholder: "Legal Ultimate Parent", type: "text" },
-              ];
+              inputFields = nextStepData.inputFields;
             }
             
             // Step 10: Address validation

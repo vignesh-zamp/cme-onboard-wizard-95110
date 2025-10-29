@@ -40,8 +40,9 @@ export interface Step {
   id: number;
   title: string;
   question: string;
-  type: 'text' | 'select' | 'multiselect' | 'upload' | 'boolean' | 'dropdown' | 'country-dropdown' | 'entity-registration';
+  type: 'text' | 'select' | 'multiselect' | 'upload' | 'boolean' | 'dropdown' | 'country-dropdown' | 'entity-registration' | 'multifield';
   options?: string[];
+  inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
   validation?: (value: any, state: OnboardingState) => boolean;
   conditional?: (state: OnboardingState) => boolean;
   helpText?: string;

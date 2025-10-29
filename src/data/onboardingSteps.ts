@@ -98,7 +98,13 @@ export const onboardingSteps: Step[] = [
     id: 9,
     title: "Entity Details",
     question: "Please provide your complete entity information including legal name, DBA (if applicable), direct parent, and legal ultimate parent.",
-    type: "text",
+    type: "multifield",
+    inputFields: [
+      { name: "legalName", placeholder: "Legal Entity Name", type: "text" },
+      { name: "dba", placeholder: "DBA (if applicable)", type: "text" },
+      { name: "directParent", placeholder: "Direct Parent Entity", type: "text" },
+      { name: "legalUltimateParent", placeholder: "Legal Ultimate Parent", type: "text" }
+    ],
     helpText: "I can validate parent entity data against corporate registries to ensure accuracy."
   },
   {
