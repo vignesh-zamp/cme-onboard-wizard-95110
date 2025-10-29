@@ -228,8 +228,8 @@ export const useOnboarding = () => {
     []
   );
 
-  // Generate comprehensive summary for final review
-  const generateRegistrationSummary = useCallback((answers: Record<string, any>, firmName: string) => {
+  // Generate comprehensive summary for final review (regular function, not memoized)
+  const generateRegistrationSummary = (answers: Record<string, any>, firmName: string) => {
     const sections = [];
     
     // Business Profile
@@ -294,7 +294,7 @@ export const useOnboarding = () => {
     }
     
     return { sections, firmName };
-  }, [platformRecommendation]);
+  };
 
   const processUserMessage = useCallback(
     async (content: string) => {
@@ -817,7 +817,7 @@ export const useOnboarding = () => {
 
       setState(newState);
     },
-    [state, simulateValidation, isFAQMode, savedStepData, platformRecommendation, generateRegistrationSummary]
+    [state, simulateValidation, isFAQMode, savedStepData, platformRecommendation]
   );
 
   return {
