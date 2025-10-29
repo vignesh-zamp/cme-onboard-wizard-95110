@@ -3,6 +3,7 @@ import { ChatMessage as ChatMessageType } from "@/types/onboarding";
 import { CheckCircle2, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlatformRecommendation } from "@/components/PlatformRecommendation";
+import { PlatformComparison } from "@/components/PlatformComparison";
 import { FormInput } from "./FormInput";
 import { AddressInput } from "./AddressInput";
 import { MultiFieldInput } from "./MultiFieldInput";
@@ -124,6 +125,13 @@ export const ChatMessage = ({
           {message.recommendation && (
             <div className="mt-4 pt-4 border-t border-border">
               <PlatformRecommendation recommendation={message.recommendation} />
+            </div>
+          )}
+          
+          {/* Show platform comparison if requested */}
+          {message.showComparison && onFormSubmit && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <PlatformComparison onSelect={(platform) => handleFormSubmit(platform)} />
             </div>
           )}
 

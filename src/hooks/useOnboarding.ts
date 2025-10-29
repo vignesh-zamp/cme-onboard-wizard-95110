@@ -553,6 +553,68 @@ export const useOnboarding = () => {
         }
       }
 
+      // Special handling for step 5 - Platform selection alternatives
+      if (state.currentStep === 5 && content === "I'd like to discuss alternatives") {
+        const newState = { ...state };
+        newState.answers[`step_${state.currentStep}`] = content;
+        setState(newState);
+        
+        // Show platform comparison UI
+        setTimeout(() => {
+          const comparisonMessage: ChatMessage = {
+            id: `comparison-${Date.now()}`,
+            type: "agent",
+            content: "Here's a detailed comparison of both platforms. Choose the one that best fits your needs:",
+            timestamp: new Date(),
+            showComparison: true,
+            inputType: "none",
+          };
+          setMessages((prev) => [...prev, comparisonMessage]);
+          setIsProcessing(false);
+        }, 800);
+        return;
+      }
+      
+      // Handle platform selection from comparison (when user is on step 5 and selects a platform)
+      if (state.currentStep === 5 && (content === "CME Direct" || content === "CME ClearPort")) {
+        const newState = { ...state };
+        newState.answers[`step_5_platform_choice`] = content;
+        
+        // Move to step 6
+        const nextStep = 6;
+        newState.currentStep = nextStep;
+        setState(newState);
+        
+        setTimeout(() => {
+          const confirmMessage: ChatMessage = {
+            id: `platform-confirm-${Date.now()}`,
+            type: "system",
+            content: `✓ ${content} selected`,
+            timestamp: new Date(),
+            validation: {
+              status: "success",
+              message: `Great choice! Let's continue with ${content} registration.`,
+            },
+          };
+          setMessages((prev) => [...prev, confirmMessage]);
+          
+          // Show next step
+          setTimeout(() => {
+            const nextStepData = onboardingSteps[nextStep - 1];
+            const agentMessage: ChatMessage = {
+              id: `agent-${Date.now()}`,
+              type: "agent",
+              content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
+              timestamp: new Date(),
+              inputType: nextStepData.type === 'entity-registration' ? 'entity-registration' : 'none',
+            };
+            setMessages((prev) => [...prev, agentMessage]);
+            setIsProcessing(false);
+          }, 500);
+        }, 800);
+        return;
+      }
+
       // Update state based on step
       const newState = { ...state };
       newState.answers[`step_${state.currentStep}`] = content;
