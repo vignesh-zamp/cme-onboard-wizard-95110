@@ -17,7 +17,7 @@ export function AppSidebar({ state }: AppSidebarProps) {
 
   return (
     <Sidebar 
-      collapsible="icon" 
+      collapsible="offcanvas"
       className="border-r border-border transition-all duration-300 ease-in-out"
     >
       <SidebarHeader className="border-b border-border p-6 transition-all duration-300">
