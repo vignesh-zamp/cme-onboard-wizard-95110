@@ -2,11 +2,13 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { QuickOptions } from "@/components/QuickOptions";
-import { useEffect, useRef } from "react";
+import { WelcomePage } from "@/components/WelcomePage";
+import { useEffect, useRef, useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 
 const Index = () => {
+  const [hasStarted, setHasStarted] = useState(false);
   const { state, messages, isProcessing, processUserMessage, isFAQMode, handleBackFromFAQ } = useOnboarding();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +29,10 @@ const Index = () => {
     (!currentMessage?.inputType || currentMessage?.inputType === "none") &&
     !isProcessing &&
     !showQuickOptions;
+
+  if (!hasStarted) {
+    return <WelcomePage onGetStarted={() => setHasStarted(true)} />;
+  }
 
   return (
     <SidebarProvider defaultOpen={true}>
