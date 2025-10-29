@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import cmeLogo from "@/assets/cme-logo.png";
 
 interface WelcomePageProps {
   onGetStarted: () => void;
@@ -9,6 +10,14 @@ export const WelcomePage = ({ onGetStarted }: WelcomePageProps) => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background px-4 animate-fade-in">
       <div className="max-w-2xl w-full text-center space-y-8">
+        <div className="flex justify-center mb-8">
+          <img 
+            src={cmeLogo} 
+            alt="CME Group Logo" 
+            className="h-16 sm:h-20 md:h-24 w-auto object-contain"
+          />
+        </div>
+        
         <div className="space-y-4">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground tracking-tight">
             Welcome to CME Group
