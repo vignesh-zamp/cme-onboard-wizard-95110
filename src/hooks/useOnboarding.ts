@@ -156,7 +156,7 @@ export const useOnboarding = () => {
               }
               break;
             
-            case 5: // ILA Validation
+            case 8: // ILA Validation (moved from step 5 to step 8)
               resolve({
                 status: "success",
                 message: "✓ Document validated. All required signatures confirmed on ILA Schedule 2b.",
