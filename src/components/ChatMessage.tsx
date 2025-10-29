@@ -173,7 +173,7 @@ export const ChatMessage = ({
               {message.inputType === "file-upload" && message.fileUploadConfig && (
                 <div className="mt-4">
                   <FileUploadInput
-                    onFileUpload={(fileUrl) => handleFormSubmit(`File uploaded: ${fileUrl}`)}
+                    onFileUpload={(fileUrl) => handleFormSubmit(`SIGNED_ILA_UPLOADED::${fileUrl}`)}
                     label={message.fileUploadConfig.label}
                     acceptedFileTypes={message.fileUploadConfig.acceptedTypes}
                     bucketName={message.fileUploadConfig.bucketName}

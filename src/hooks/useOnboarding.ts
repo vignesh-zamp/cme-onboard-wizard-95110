@@ -329,11 +329,16 @@ export const useOnboarding = () => {
 
       setIsProcessing(true);
 
-      // Add user message
+      // Add user message (with special handling for file uploads)
+      let displayContent = content;
+      if (content.startsWith('SIGNED_ILA_UPLOADED::')) {
+        displayContent = "✓ Signed ILA Document uploaded";
+      }
+      
       const userMessage: ChatMessage = {
         id: `user-${Date.now()}`,
         type: "user",
-        content,
+        content: displayContent,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, userMessage]);
@@ -380,8 +385,8 @@ export const useOnboarding = () => {
           return;
         }
         
-        // If user uploaded file (content starts with "File uploaded:"), proceed to next step
-        if (content.startsWith('File uploaded:')) {
+        // If user uploaded file (content starts with "SIGNED_ILA_UPLOADED::"), proceed to next step
+        if (content.startsWith('SIGNED_ILA_UPLOADED::')) {
           const newState = { ...state };
           newState.answers[`step_${state.currentStep}_file`] = content;
           
