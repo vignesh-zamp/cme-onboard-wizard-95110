@@ -33,13 +33,17 @@ export const FileUploadInput = ({
     setIsUploading(true);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // Check if user is authenticated, if not sign in anonymously
+      let { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        toast.error("You must be logged in to upload files");
-        return;
+        const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+        if (anonError || !anonData.user) {
+          toast.error("Unable to initialize upload session. Please try again.");
+          setIsUploading(false);
+          return;
+        }
+        user = anonData.user;
       }
 
       // Create a unique file path
