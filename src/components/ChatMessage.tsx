@@ -9,6 +9,7 @@ import { MultiFieldInput } from "./MultiFieldInput";
 import { SelectInput } from "./SelectInput";
 import { CountryDropdownInput } from "./CountryDropdownInput";
 import { EntityRegistrationInput } from "./EntityRegistrationInput";
+import { FileUploadInput } from "./FileUploadInput";
 import paceLogo from "@/assets/pace-logo.png";
 
 interface ChatMessageProps {
@@ -168,6 +169,16 @@ export const ChatMessage = ({
                   onSubmit={(values) => handleFormSubmit(`Legal Name: ${values.legalName}, Jurisdiction: ${values.jurisdiction}`)}
                   disabled={disabled}
                 />
+              )}
+              {message.inputType === "file-upload" && message.fileUploadConfig && (
+                <div className="mt-4">
+                  <FileUploadInput
+                    onFileUpload={(fileUrl) => handleFormSubmit(`File uploaded: ${fileUrl}`)}
+                    label={message.fileUploadConfig.label}
+                    acceptedFileTypes={message.fileUploadConfig.acceptedTypes}
+                    bucketName={message.fileUploadConfig.bucketName}
+                  />
+                </div>
               )}
             </>
           )}

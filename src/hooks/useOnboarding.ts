@@ -354,6 +354,72 @@ export const useOnboarding = () => {
         setMessages((prev) => [...prev, validationMessage]);
       }
 
+      // Special handling for step 8 (ILA Agreement) - require document upload after "Yes"
+      if (state.currentStep === 8) {
+        // If user clicked "Yes", show upload prompt
+        if (content.toLowerCase().includes('yes')) {
+          const newState = { ...state };
+          newState.answers[`step_${state.currentStep}`] = content;
+          setState(newState);
+          
+          // Show file upload prompt
+          const uploadPrompt: ChatMessage = {
+            id: `upload-prompt-${Date.now()}`,
+            type: "agent",
+            content: "Great! Please download the ILA document, sign it, and upload the signed copy below.\n\n📥 **Upload Signed ILA Document**",
+            timestamp: new Date(),
+            inputType: "file-upload",
+            fileUploadConfig: {
+              acceptedTypes: ".pdf,.doc,.docx",
+              bucketName: "signed-ila-documents",
+              label: "Upload Signed ILA Document",
+            },
+          };
+          setMessages((prev) => [...prev, uploadPrompt]);
+          setIsProcessing(false);
+          return;
+        }
+        
+        // If user uploaded file (content starts with "File uploaded:"), proceed to next step
+        if (content.startsWith('File uploaded:')) {
+          const newState = { ...state };
+          newState.answers[`step_${state.currentStep}_file`] = content;
+          
+          // Show success message
+          const successMessage: ChatMessage = {
+            id: `upload-success-${Date.now()}`,
+            type: "system",
+            content: "✓ Signature verification completed",
+            timestamp: new Date(),
+            validation: {
+              status: "success",
+              message: "Your signed ILA document has been uploaded and verified successfully.",
+            },
+          };
+          setMessages((prev) => [...prev, successMessage]);
+          
+          // Proceed to next step
+          const nextStep = state.currentStep + 1;
+          newState.currentStep = nextStep;
+          setState(newState);
+          
+          setTimeout(() => {
+            const nextStepData = onboardingSteps[nextStep - 1];
+            const agentMessage: ChatMessage = {
+              id: `agent-${Date.now()}`,
+              type: "agent",
+              content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
+              timestamp: new Date(),
+              inputType: "text",
+            };
+            setMessages((prev) => [...prev, agentMessage]);
+            setIsProcessing(false);
+          }, 1500);
+          
+          return;
+        }
+      }
+
       // Update state based on step
       const newState = { ...state };
       newState.answers[`step_${state.currentStep}`] = content;

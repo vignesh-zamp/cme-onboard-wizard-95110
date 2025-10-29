@@ -25,10 +25,15 @@ export interface ChatMessage {
     details?: string;
   };
   recommendation?: PlatformRecommendation;
-  inputType?: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none";
+  inputType?: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "file-upload" | "none";
   inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
   selectOptions?: string[];
   showBackButton?: boolean;
+  fileUploadConfig?: {
+    acceptedTypes: string;
+    bucketName: string;
+    label: string;
+  };
 }
 
 export interface Step {
