@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import cmeLogo from "@/assets/cme-logo.png";
+import paceLogo from "@/assets/pace-logo.png";
 
 interface WelcomePageProps {
   onGetStarted: () => void;
@@ -20,7 +21,7 @@ export const WelcomePage = ({ onGetStarted }: WelcomePageProps) => {
         
         <div className="space-y-4">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground tracking-tight">
-            Welcome to CME Group
+            Welcome to CME New Firm Registration
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
             Let's get you set up with the right trading platform for your needs. 
@@ -51,6 +52,17 @@ export const WelcomePage = ({ onGetStarted }: WelcomePageProps) => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary" />
             <span>Secure</span>
+          </div>
+        </div>
+
+        <div className="pt-12 border-t border-border/50 mt-12">
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <span>Powered by</span>
+            <img 
+              src={paceLogo} 
+              alt="Pace Logo" 
+              className="h-6 w-auto object-contain"
+            />
           </div>
         </div>
       </div>
