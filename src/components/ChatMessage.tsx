@@ -10,6 +10,8 @@ import { SelectInput } from "./SelectInput";
 import { CountryDropdownInput } from "./CountryDropdownInput";
 import { EntityRegistrationInput } from "./EntityRegistrationInput";
 import { FileUploadInput } from "./FileUploadInput";
+import { MultiSelectInput } from "./MultiSelectInput";
+import { RegistrationSummary } from "./RegistrationSummary";
 import paceLogo from "@/assets/pace-logo.png";
 
 interface ChatMessageProps {
@@ -180,7 +182,22 @@ export const ChatMessage = ({
                   />
                 </div>
               )}
+              {message.inputType === "multiselect" && message.multiselectOptions && (
+                <MultiSelectInput 
+                  options={message.multiselectOptions}
+                  onSubmit={(values) => handleFormSubmit(values.join(', '))} 
+                  disabled={disabled}
+                />
+              )}
             </>
+          )}
+
+          {/* Registration Summary */}
+          {message.summary && (
+            <RegistrationSummary 
+              sections={message.summary.sections}
+              firmName={message.summary.firmName}
+            />
           )}
 
           {message.validation && (

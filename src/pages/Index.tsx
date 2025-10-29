@@ -34,7 +34,7 @@ const Index = () => {
         <AppSidebar state={state} />
 
         <main className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 border-b border-border bg-card flex items-center px-4 lg:hidden">
+          <header className="h-14 border-b border-border bg-card flex items-center px-4 sticky top-0 z-10 backdrop-blur-sm bg-card/95">
             <SidebarTrigger />
           </header>
 

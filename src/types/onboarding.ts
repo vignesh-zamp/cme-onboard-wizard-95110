@@ -25,9 +25,11 @@ export interface ChatMessage {
     details?: string;
   };
   recommendation?: PlatformRecommendation;
-  inputType?: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "file-upload" | "none";
+  inputType?: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "file-upload" | "none";
   inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
   selectOptions?: string[];
+  multiselectOptions?: string[];
+  summary?: { sections: { title: string; items: { label: string; value: string }[] }[]; firmName: string };
   showBackButton?: boolean;
   fileUploadConfig?: {
     acceptedTypes: string;

@@ -228,6 +228,74 @@ export const useOnboarding = () => {
     []
   );
 
+  // Generate comprehensive summary for final review
+  const generateRegistrationSummary = useCallback((answers: Record<string, any>, firmName: string) => {
+    const sections = [];
+    
+    // Business Profile
+    sections.push({
+      title: "Business Profile",
+      items: [
+        { label: "Entity Type", value: answers.step_1 || "N/A" },
+        { label: "Jurisdiction", value: answers.step_2 || "N/A" },
+      ]
+    });
+    
+    // Trading Activities & Products
+    sections.push({
+      title: "Trading Activities & Products",
+      items: [
+        { label: "Activities", value: answers.step_3 || "N/A" },
+        { label: "Products", value: answers.step_4 || "N/A" },
+      ]
+    });
+    
+    // Platform & Registration
+    sections.push({
+      title: "Platform & Entity Registration",
+      items: [
+        { label: "Platform", value: platformRecommendation?.platform || "As selected" },
+        { label: "Legal Name", value: answers.step_6 || firmName },
+        { label: "FCM/IB", value: answers.step_7 || "N/A" },
+      ]
+    });
+    
+    // Entity Details
+    if (answers.step_9) {
+      sections.push({
+        title: "Entity Details",
+        items: [
+          { label: "Details", value: answers.step_9 },
+        ]
+      });
+    }
+    
+    // Contacts & Compliance
+    const contactItems = [];
+    if (answers.step_10) contactItems.push({ label: "Address", value: answers.step_10 });
+    if (answers.step_11) contactItems.push({ label: "Billing", value: answers.step_11 });
+    if (answers.step_17) contactItems.push({ label: "VOs", value: answers.step_17 });
+    if (contactItems.length > 0) {
+      sections.push({
+        title: "Contacts & Compliance",
+        items: contactItems
+      });
+    }
+    
+    // User Setup
+    if (answers.step_18 || answers.step_19) {
+      sections.push({
+        title: "User Configuration",
+        items: [
+          ...(answers.step_18 ? [{ label: "Users", value: answers.step_18 }] : []),
+          ...(answers.step_19 ? [{ label: "Roles", value: answers.step_19 }] : []),
+        ]
+      });
+    }
+    
+    return { sections, firmName };
+  }, [platformRecommendation]);
+
   const processUserMessage = useCallback(
     async (content: string) => {
       // Handle "Need Help" button click
@@ -296,12 +364,16 @@ export const useOnboarding = () => {
           
           setTimeout(() => {
             // Properly restore input type based on step type
-            let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" | undefined;
+            let restoredInputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" | undefined;
             let restoredSelectOptions: string[] | undefined;
+            let restoredMultiselectOptions: string[] | undefined;
             let restoredInputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             
             if (savedStepData.type === 'boolean') {
               restoredInputType = 'none';
+            } else if (savedStepData.type === 'multiselect') {
+              restoredInputType = 'multiselect';
+              restoredMultiselectOptions = savedStepData.options;
             } else if (savedStepData.type === 'country-dropdown') {
               restoredInputType = 'country-dropdown';
             } else if (savedStepData.type === 'dropdown') {
@@ -319,9 +391,10 @@ export const useOnboarding = () => {
               type: "agent",
               content: "Now, let's continue with your onboarding:\n\n" + savedStepData.question + (savedStepData.helpText ? `\n\n💡 ${savedStepData.helpText}` : ''),
               timestamp: new Date(),
-              options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : savedStepData.options,
+              options: savedStepData.type === 'boolean' ? ['Yes', 'No'] : (savedStepData.type === 'multiselect' ? undefined : savedStepData.options),
               inputType: restoredInputType,
               selectOptions: restoredSelectOptions,
+              multiselectOptions: restoredMultiselectOptions,
               inputFields: restoredInputFields,
             };
             setMessages((prev) => [...prev, returnMessage]);
@@ -422,14 +495,21 @@ export const useOnboarding = () => {
             const nextStepData = onboardingSteps[nextStep - 1];
 
             // Determine appropriate input UI for the next step (avoid hardcoding "text")
-            let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "none";
+            let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             let options: string[] | undefined = nextStepData.options;
             let selectOptions: string[] | undefined;
+            let multiselectOptions: string[] | undefined;
 
             // Boolean -> Yes/No buttons
             if (nextStepData.type === 'boolean') {
               options = ["Yes", "No"]; 
+            }
+            // Multiselect
+            if (nextStepData.type === 'multiselect') {
+              inputType = "multiselect";
+              multiselectOptions = nextStepData.options;
+              options = undefined;
             }
             // Country dropdown
             if (nextStepData.type === 'country-dropdown') {
@@ -462,6 +542,7 @@ export const useOnboarding = () => {
               options,
               inputType,
               selectOptions,
+              multiselectOptions,
               inputFields,
             };
             setMessages((prev) => [...prev, agentMessage]);
@@ -508,12 +589,18 @@ export const useOnboarding = () => {
         // Re-display the current question with error
         setTimeout(() => {
           const currentStepData = onboardingSteps[state.currentStep - 1];
-          let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "text";
+          let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" = "text";
           let selectOptions: string[] | undefined;
+          let multiselectOptions: string[] | undefined;
           let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
           
           if (currentStepData.type === 'boolean') {
             inputType = "none";
+          }
+          
+          if (currentStepData.type === 'multiselect') {
+            inputType = "multiselect";
+            multiselectOptions = currentStepData.options;
           }
           
           if (currentStepData.type === 'country-dropdown') {
@@ -542,6 +629,7 @@ export const useOnboarding = () => {
             options: currentStepData.type === 'boolean' ? ['Yes', 'No'] : undefined,
             inputType,
             selectOptions,
+            multiselectOptions,
             inputFields,
           };
           setMessages((prev) => [...prev, retryMessage]);
@@ -571,14 +659,22 @@ export const useOnboarding = () => {
             const nextStepData = onboardingSteps[targetStep - 1];
             
             // Determine input type based on step
-            let inputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" = "none";
+            let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             let options: string[] | undefined = nextStepData.options;
             let selectOptions: string[] | undefined;
+            let multiselectOptions: string[] | undefined;
 
             // For boolean type questions, convert to Yes/No options
             if (nextStepData.type === 'boolean') {
               options = ["Yes", "No"];
+            }
+            
+            // Handle multiselect type
+            if (nextStepData.type === 'multiselect') {
+              inputType = "multiselect";
+              multiselectOptions = nextStepData.options;
+              options = undefined; // Don't show as buttons
             }
 
             // Handle country-dropdown type
@@ -676,6 +772,19 @@ export const useOnboarding = () => {
                 inputType: "none",
               };
               setMessages((prev) => [...prev, recommendationMessage]);
+            } else if (targetStep === 20) {
+              // Final review with comprehensive summary
+              const summary = generateRegistrationSummary(newState.answers, newState.firmName);
+              const summaryMessage: ChatMessage = {
+                id: `summary-${Date.now()}`,
+                type: "agent",
+                content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
+                timestamp: new Date(),
+                summary,
+                inputType: "text",
+                inputFields: [{ name: "confirmation", placeholder: "Type 'CONFIRM' to proceed", type: "text" }],
+              };
+              setMessages((prev) => [...prev, summaryMessage]);
             } else {
               const agentMessage: ChatMessage = {
                 id: `agent-${Date.now()}`,
@@ -686,6 +795,7 @@ export const useOnboarding = () => {
                 inputType,
                 inputFields,
                 selectOptions,
+                multiselectOptions,
               };
               setMessages((prev) => [...prev, agentMessage]);
             }
@@ -707,7 +817,7 @@ export const useOnboarding = () => {
 
       setState(newState);
     },
-    [state, simulateValidation, isFAQMode, savedStepData, platformRecommendation]
+    [state, simulateValidation, isFAQMode, savedStepData, platformRecommendation, generateRegistrationSummary]
   );
 
   return {
