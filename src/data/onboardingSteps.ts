@@ -109,20 +109,27 @@ export const onboardingSteps: Step[] = [
   },
   {
     id: 10,
+    title: "LEI Validation",
+    question: "Please provide your 20-character Legal Entity Identifier (LEI) for verification.",
+    type: "text",
+    helpText: "I'll verify your LEI against the global registry and display your company information."
+  },
+  {
+    id: 11,
     title: "Registered Address",
     question: "Please provide your firm's registered office address. Note that P.O. Boxes are not acceptable.",
     type: "text",
     helpText: "I'll use geospatial validation to auto-complete and verify your address as you type."
   },
   {
-    id: 11,
+    id: 12,
     title: "Billing Contacts",
     question: "Please provide details for two billing contacts. For each contact, provide: Name, Email, Phone Number.",
     type: "text",
     helpText: "Format: Name1, Email1, Phone1 | Name2, Email2, Phone2. I'll send verification codes to validate these contacts."
   },
   {
-    id: 12,
+    id: 13,
     title: "Regulatory Status",
     question: "Based on your selected activities, I need to understand your regulatory status. Are you registered with the CFTC or another regulatory body?",
     type: "select",
@@ -136,7 +143,7 @@ export const onboardingSteps: Step[] = [
     helpText: "This information is required for CFTC reporting compliance."
   },
   {
-    id: 13,
+    id: 14,
     title: "LEI Verification",
     question: "Please provide your 20-character Legal Entity Identifier (LEI).",
     type: "text",
@@ -144,14 +151,14 @@ export const onboardingSteps: Step[] = [
     helpText: "I'll verify your LEI against the global registry and auto-populate associated details like legal name and domicile."
   },
   {
-    id: 14,
+    id: 15,
     title: "Canada Reporting Obligations",
     question: "Notwithstanding your entity's domicile, does your entity have reporting obligations to a province in Canada?",
     type: "boolean",
     helpText: "This determines if Canadian provincial requirements apply to your operations."
   },
   {
-    id: 15,
+    id: 16,
     title: "Canada Details",
     question: "Please specify which Canadian province(s) you have obligations in and provide your Canadian Tax ID.",
     type: "text",
@@ -159,28 +166,28 @@ export const onboardingSteps: Step[] = [
     helpText: "Select all applicable provinces and territories. You can specify multiple provinces."
   },
   {
-    id: 16,
+    id: 17,
     title: "CME Account",
     question: "Do you have an existing CME Group User Account? Please provide the registered email address.",
     type: "text",
     helpText: "If no account is found, I can create one for you right here without redirecting to another page."
   },
   {
-    id: 17,
+    id: 18,
     title: "Verification Officers",
     question: "Please provide details for two Verification Officers (VOs) who will oversee compliance. For each: Name, Email, Phone.",
     type: "text",
     helpText: "Format: Name1, Email1, Phone1 | Name2, Email2, Phone2. I'll validate these VOs against our registry."
   },
   {
-    id: 18,
+    id: 19,
     title: "User Registration",
     question: "How many users would you like to register initially? Please specify the number of Active users (immediate login) and Passive users (notifications only).",
     type: "text",
     helpText: "Most firms start with 3-5 total users. You can add more users later at any time."
   },
   {
-    id: 19,
+    id: 20,
     title: "User Roles",
     question: "Please assign roles to your users. Select all roles you'll need to configure.",
     type: "multiselect",
@@ -194,7 +201,7 @@ export const onboardingSteps: Step[] = [
     helpText: "Most firms assign one Admin and at least two Traders to start. I'll help you configure each user's specific role."
   },
   {
-    id: 20,
+    id: 21,
     title: "Final Review",
     question: "Perfect! Let me provide a comprehensive summary of your registration for final confirmation.",
     type: "text",

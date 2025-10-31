@@ -3,7 +3,7 @@ import { OnboardingState, ChatMessage } from "@/types/onboarding";
 import { onboardingSteps } from "@/data/onboardingSteps";
 import { toast } from "sonner";
 
-const TOTAL_STEPS = 20; // Updated to 20 steps
+const TOTAL_STEPS = 21; // Updated to 21 steps
 
 interface PlatformRecommendation {
   platform: string;
@@ -48,7 +48,7 @@ export const useOnboarding = () => {
     setIsFAQMode(false);
     
     // Restore the original question with options
-    let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "none" | undefined;
+    let restoredInputType: "text" | "address" | "multifield" | "select" | "country-dropdown" | "entity-registration" | "lei-verification" | "none" | undefined;
     let restoredSelectOptions: string[] | undefined;
     let restoredInputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
     
@@ -163,21 +163,26 @@ export const useOnboarding = () => {
               });
               break;
             
-            case 9: // Address Validation
+            case 10: // LEI Validation
+              // Skip validation for LEI verification since it's handled by the component
+              resolve(undefined);
+              break;
+            
+            case 11: // Address Validation
               resolve({
                 status: "success",
                 message: "✓ Address verified via geospatial validation. Location confirmed.",
               });
               break;
             
-            case 10: // Billing Contact
+            case 12: // Billing Contact
               resolve({
                 status: "pending",
                 message: "📧 Verification code sent to billing contact. Please confirm receipt.",
               });
               break;
             
-            case 12: // LEI Verification
+            case 14: // LEI Verification (swaps conditional)
               if (value.length === 20) {
                 resolve({
                   status: "success",
@@ -191,12 +196,12 @@ export const useOnboarding = () => {
               }
               break;
             
-            case 15: // Canada Details
+            case 16: // Canada Details
               // No stub validation for Canada details; proceed without special checks
               resolve(undefined);
               break;
             
-            case 16: // CME Account
+            case 17: // CME Account
               const allowedEmails = ['vivaan@zamp.ai', 'prabhu@zamp.ai'];
               const email = value.toLowerCase().trim();
               if (allowedEmails.includes(email)) {
@@ -212,7 +217,7 @@ export const useOnboarding = () => {
               }
               break;
             
-            case 17: // VO Validation
+            case 18: // VO Validation
               resolve({
                 status: "success",
                 message: "✓ Verification Officers validated and properly mapped to your entity.",
@@ -272,9 +277,9 @@ export const useOnboarding = () => {
     
     // Contacts & Compliance
     const contactItems = [];
-    if (answers.step_10) contactItems.push({ label: "Address", value: answers.step_10 });
-    if (answers.step_11) contactItems.push({ label: "Billing", value: answers.step_11 });
-    if (answers.step_17) contactItems.push({ label: "VOs", value: answers.step_17 });
+    if (answers.step_11) contactItems.push({ label: "Address", value: answers.step_11 });
+    if (answers.step_12) contactItems.push({ label: "Billing", value: answers.step_12 });
+    if (answers.step_18) contactItems.push({ label: "VOs", value: answers.step_18 });
     if (contactItems.length > 0) {
       sections.push({
         title: "Contacts & Compliance",
@@ -283,12 +288,12 @@ export const useOnboarding = () => {
     }
     
     // User Setup
-    if (answers.step_18 || answers.step_19) {
+    if (answers.step_19 || answers.step_20) {
       sections.push({
         title: "User Configuration",
         items: [
-          ...(answers.step_18 ? [{ label: "Users", value: answers.step_18 }] : []),
-          ...(answers.step_19 ? [{ label: "Roles", value: answers.step_19 }] : []),
+          ...(answers.step_19 ? [{ label: "Users", value: answers.step_19 }] : []),
+          ...(answers.step_20 ? [{ label: "Roles", value: answers.step_20 }] : []),
         ]
       });
     }
@@ -364,7 +369,7 @@ export const useOnboarding = () => {
           
           setTimeout(() => {
             // Properly restore input type based on step type
-            let restoredInputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" | undefined;
+            let restoredInputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "lei-verification" | "none" | undefined;
             let restoredSelectOptions: string[] | undefined;
             let restoredMultiselectOptions: string[] | undefined;
             let restoredInputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
@@ -557,7 +562,7 @@ export const useOnboarding = () => {
             const nextStepData = onboardingSteps[nextStep - 1];
 
             // Determine appropriate input UI for the next step (avoid hardcoding "text")
-            let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" = "none";
+            let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "lei-verification" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             let options: string[] | undefined = nextStepData.options;
             let selectOptions: string[] | undefined;
@@ -591,8 +596,12 @@ export const useOnboarding = () => {
               inputType = "multifield";
               inputFields = nextStepData.inputFields;
             }
-            // Address input for Registered Address (Step 10)
+            // LEI Validation (Step 10)
             if (nextStep === 10) {
+              inputType = "lei-verification";
+            }
+            // Address input for Registered Address (Step 11)
+            if (nextStep === 11) {
               inputType = "address";
             }
 
@@ -615,6 +624,52 @@ export const useOnboarding = () => {
         }
       }
 
+      // Special handling for step 10 (LEI Verification)
+      if (state.currentStep === 10 && content.startsWith('LEI_VERIFIED::')) {
+        const parts = content.split('::');
+        const lei = parts[1];
+        const leiData = JSON.parse(parts[2]);
+        
+        const newState = { ...state };
+        newState.answers[`step_${state.currentStep}`] = lei;
+        newState.answers[`step_${state.currentStep}_data`] = leiData;
+        
+        // Show success message with company data
+        const successMessage: ChatMessage = {
+          id: `lei-success-${Date.now()}`,
+          type: "system",
+          content: `✓ LEI Verification Complete\n\nCompany: ${leiData.legalName}\nLEI: ${lei}\nStatus: ${leiData.leiStatus}`,
+          timestamp: new Date(),
+          validation: {
+            status: "success",
+            message: "LEI has been successfully verified against the global registry.",
+          },
+        };
+        setMessages((prev) => [...prev, successMessage]);
+        
+        // Proceed to next step
+        const nextStep = state.currentStep + 1;
+        newState.currentStep = nextStep;
+        setState(newState);
+        
+        setTimeout(() => {
+          const nextStepData = onboardingSteps[nextStep - 1];
+          
+          const agentMessage: ChatMessage = {
+            id: `agent-${Date.now()}`,
+            type: "agent",
+            content: nextStepData.question + (nextStepData.helpText ? `\n\n💡 ${nextStepData.helpText}` : ''),
+            timestamp: new Date(),
+            options: nextStepData.type === 'boolean' ? ["Yes", "No"] : nextStepData.options,
+            inputType: "address", // Step 11 is address
+          };
+          setMessages((prev) => [...prev, agentMessage]);
+          setIsProcessing(false);
+        }, 1500);
+        
+        return;
+      }
+
       // Update state based on step
       const newState = { ...state };
       newState.answers[`step_${state.currentStep}`] = content;
@@ -625,8 +680,8 @@ export const useOnboarding = () => {
         newState.isSwapsSelected = isSwaps;
       }
       
-      // Check Canada eligibility (now in step 14)
-      if (state.currentStep === 14) {
+      // Check Canada eligibility (now in step 15)
+      if (state.currentStep === 15) {
         newState.isCanadaEligible = content.toLowerCase().includes('yes');
       }
 
@@ -651,7 +706,7 @@ export const useOnboarding = () => {
         // Re-display the current question with error
         setTimeout(() => {
           const currentStepData = onboardingSteps[state.currentStep - 1];
-          let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" = "text";
+          let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "lei-verification" | "none" = "text";
           let selectOptions: string[] | undefined;
           let multiselectOptions: string[] | undefined;
           let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
@@ -721,7 +776,7 @@ export const useOnboarding = () => {
             const nextStepData = onboardingSteps[targetStep - 1];
             
             // Determine input type based on step
-            let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "none" = "none";
+            let inputType: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "lei-verification" | "none" = "none";
             let inputFields: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[] | undefined;
             let options: string[] | undefined = nextStepData.options;
             let selectOptions: string[] | undefined;
@@ -761,13 +816,18 @@ export const useOnboarding = () => {
               inputFields = nextStepData.inputFields;
             }
             
-            // Step 10: Address validation
+            // Step 10: LEI Validation
             if (targetStep === 10) {
+              inputType = "lei-verification";
+            }
+            
+            // Step 11: Address validation
+            if (targetStep === 11) {
               inputType = "address";
             }
             
-            // Step 11: Billing Contacts - multi-field
-            if (targetStep === 11) {
+            // Step 12: Billing Contacts - multi-field
+            if (targetStep === 12) {
               inputType = "multifield";
               inputFields = [
                 { name: "contact1Name", placeholder: "Contact 1 Name", type: "text" },
@@ -779,14 +839,14 @@ export const useOnboarding = () => {
               ];
             }
             
-            // Step 13: LEI - single field
-            if (targetStep === 13) {
+            // Step 14: LEI - single field (swaps-conditional)
+            if (targetStep === 14) {
               inputType = "text";
               inputFields = [{ name: "lei", placeholder: "20-character LEI", type: "text" }];
             }
             
-            // Step 15: Canada Details - separate fields
-            if (targetStep === 15) {
+            // Step 16: Canada Details - separate fields
+            if (targetStep === 16) {
               inputType = "multifield";
               inputFields = [
                 { name: "provinces", placeholder: "Province(s) (e.g., Ontario, Quebec)", type: "text" },
@@ -794,14 +854,14 @@ export const useOnboarding = () => {
               ];
             }
             
-            // Step 16: CME Account - single field
-            if (targetStep === 16) {
+            // Step 17: CME Account - single field
+            if (targetStep === 17) {
               inputType = "text";
               inputFields = [{ name: "email", placeholder: "your.email@company.com", type: "email" }];
             }
             
-            // Step 17: Verification Officers - multi-field
-            if (targetStep === 17) {
+            // Step 18: Verification Officers - multi-field
+            if (targetStep === 18) {
               inputType = "multifield";
               inputFields = [
                 { name: "vo1Name", placeholder: "VO 1 Name", type: "text" },
@@ -813,8 +873,8 @@ export const useOnboarding = () => {
               ];
             }
             
-            // Step 18: User Registration - separate fields
-            if (targetStep === 18) {
+            // Step 19: User Registration - separate fields
+            if (targetStep === 19) {
               inputType = "multifield";
               inputFields = [
                 { name: "activeUsers", placeholder: "Number of Active Users", type: "text" },
@@ -834,7 +894,7 @@ export const useOnboarding = () => {
                 inputType: "none",
               };
               setMessages((prev) => [...prev, recommendationMessage]);
-            } else if (targetStep === 20) {
+            } else if (targetStep === 21) {
               // Final review with comprehensive summary
               const summary = generateRegistrationSummary(newState.answers, newState.firmName);
               const summaryMessage: ChatMessage = {

@@ -26,7 +26,7 @@ export interface ChatMessage {
   };
   recommendation?: PlatformRecommendation;
   showComparison?: boolean;
-  inputType?: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "file-upload" | "none";
+  inputType?: "text" | "address" | "multifield" | "select" | "multiselect" | "country-dropdown" | "entity-registration" | "file-upload" | "lei-verification" | "none";
   inputFields?: { name: string; placeholder: string; type?: "text" | "email" | "tel" }[];
   selectOptions?: string[];
   multiselectOptions?: string[];

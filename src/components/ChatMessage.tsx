@@ -11,6 +11,7 @@ import { SelectInput } from "./SelectInput";
 import { CountryDropdownInput } from "./CountryDropdownInput";
 import { EntityRegistrationInput } from "./EntityRegistrationInput";
 import { FileUploadInput } from "./FileUploadInput";
+import { LEIVerificationInput } from "./LEIVerificationInput";
 import { MultiSelectInput } from "./MultiSelectInput";
 import { RegistrationSummary } from "./RegistrationSummary";
 import paceLogo from "@/assets/pace-logo.png";
@@ -196,6 +197,13 @@ export const ChatMessage = ({
                   onSubmit={(values) => handleFormSubmit(values.join(', '))} 
                   disabled={disabled}
                 />
+              )}
+              {message.inputType === "lei-verification" && (
+                <div className="mt-4">
+                  <LEIVerificationInput
+                    onSubmit={(lei, data) => handleFormSubmit(`LEI_VERIFIED::${lei}::${JSON.stringify(data)}`)}
+                  />
+                </div>
               )}
             </>
           )}
