@@ -417,10 +417,20 @@ export const useOnboarding = () => {
 
       setIsProcessing(true);
 
-      // Add user message (with special handling for file uploads)
+      // Add user message (with special handling for file uploads and LEI verification)
       let displayContent = content;
       if (content.startsWith('SIGNED_ILA_UPLOADED::')) {
         displayContent = "✓ Signed ILA Document uploaded";
+      } else if (content.startsWith('LEI_VERIFIED::')) {
+        // Extract LEI and company name for clean display
+        const parts = content.split('::');
+        const lei = parts[1];
+        try {
+          const leiData = JSON.parse(parts[2]);
+          displayContent = `LEI: ${lei}\nCompany: ${leiData.legalName}`;
+        } catch {
+          displayContent = `LEI: ${lei}`;
+        }
       }
       
       const userMessage: ChatMessage = {
@@ -638,11 +648,12 @@ export const useOnboarding = () => {
         const successMessage: ChatMessage = {
           id: `lei-success-${Date.now()}`,
           type: "system",
-          content: `✓ LEI Verification Complete\n\nCompany: ${leiData.legalName}\nLEI: ${lei}\nStatus: ${leiData.leiStatus}`,
+          content: `✓ LEI Verification Complete`,
           timestamp: new Date(),
           validation: {
             status: "success",
-            message: "LEI has been successfully verified against the global registry.",
+            message: `Successfully verified ${leiData.legalName} (${lei}). Entity status: ${leiData.entityStatus}, LEI status: ${leiData.leiStatus}.`,
+            details: `Registered at: ${leiData.address}`,
           },
         };
         setMessages((prev) => [...prev, successMessage]);
