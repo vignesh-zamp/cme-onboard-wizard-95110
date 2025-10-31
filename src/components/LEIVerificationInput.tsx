@@ -27,7 +27,8 @@ export const LEIVerificationInput = ({ onSubmit }: LEIVerificationInputProps) =>
   const [verifiedData, setVerifiedData] = useState<LEIData | null>(null);
 
   const handleVerify = async () => {
-    if (lei.length !== 20) {
+    const trimmedLei = lei.trim();
+    if (trimmedLei.length !== 20) {
       setError("LEI must be exactly 20 characters");
       return;
     }
@@ -38,7 +39,7 @@ export const LEIVerificationInput = ({ onSubmit }: LEIVerificationInputProps) =>
 
     try {
       const { data, error: functionError } = await supabase.functions.invoke('verify-lei', {
-        body: { lei: lei.toUpperCase() }
+        body: { lei: trimmedLei.toUpperCase() }
       });
 
       if (functionError) throw functionError;
@@ -58,7 +59,7 @@ export const LEIVerificationInput = ({ onSubmit }: LEIVerificationInputProps) =>
 
   const handleConfirm = () => {
     if (verifiedData) {
-      onSubmit(lei.toUpperCase(), verifiedData);
+      onSubmit(lei.trim().toUpperCase(), verifiedData);
     }
   };
 
