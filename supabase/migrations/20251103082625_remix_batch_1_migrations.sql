@@ -1,4 +1,6 @@
 
+-- Migration: 20251103081904
+
 -- Migration: 20251024074107
 -- Create storage bucket for knowledge base files
 INSERT INTO storage.buckets (id, name, public)
@@ -64,3 +66,4 @@ USING (
   bucket_id = 'signed-ila-documents' AND
   auth.uid()::text = (storage.foldername(name))[1]
 );
+
